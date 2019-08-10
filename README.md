@@ -1,6 +1,6 @@
 # Scorecard-Bundle
 
-The one package yoWWu need for Scorecard modeling in Python.
+The one package you need for Scorecard modeling in Python.
 
 **Scorecard-Bundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in ScorecardBundle comply with the fit-transform-predict convention in Scikit-learn.
 
