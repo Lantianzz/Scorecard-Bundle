@@ -1,10 +1,10 @@
 # Scorecard-Bundle
 
-The one package you need for Scorecard modeling in Python.
+The one package yoWWu need for Scorecard modeling in Python.
 
 **Scorecard-Bundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in ScorecardBundle comply with the fit-transform-predict convention in Scikit-learn.
 
-There is a three-stage plan for Scorecard-Bundle:
+There is a two-stage plan for Scorecard-Bundle:
 
 - Stage 1: Replicate all functions of convectional Scorecard modeling, including:
   - Feature discretization with Chi-Merge;
@@ -70,12 +70,21 @@ me.lift_curve(y_train_binary.values, scored_result['TotalScore'].values, output_
 
 ## Update Log
 
+### Updates in v0.5
+
+- ChiMerge:
+  - Rewrite everything with Numpy (basically no Pandas at all). Now no error would be raised during training, even with unbalanced samples where the old implementation usually crash.
+
+- WOE
+  - Rewrite everything with Numpy. The code efficiency is boosted due to matrix computation;
+  - The feature selection function is removed from WOE and will be included in an independent feature selection submodule;
+
 ### Updates in v0.4
 
 - ChiMerge：
   - When the distribution of a feature is heavily unbalanced (e.g. most values are the same), pandas.qcut will crash. Thus we will switch to pandas.cut durng the above circumstances.
 - ModelEvaluation:
-  - Fixed a bug in lift curve. Now the codes can generalize better.
+  - Fixed a bug in lift curve. WNow the codes can generalize better.
 
 - Scorecard
   - Add predict_proba() function to return scores only
