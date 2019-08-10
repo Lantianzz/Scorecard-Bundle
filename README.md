@@ -18,6 +18,8 @@ There is a two-stage plan for Scorecard-Bundle:
   - Automatically select proper discretization methods for different features;
   - Automatically perform hyper-parameter tuning for LR-based Scorecard;
   - Automatically perform feature selection with consideration of predictability, co-linearity and explainability;
+  - Provide an model pipeline that takes the input features, perform all the tasks (discretization, woe, etc.) inside it and return the scored samples and Scorecard rules. This simplify the modeling process to one line of code `model.fit_predict(X, y)`;
+  - Add support for Scorecard based on algorithms other than Logistic Regression;
 
 <img src="https://github.com/Lantianzz/ScorecardBundle/blob/master/pics/framework.svg">
 
