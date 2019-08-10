@@ -2,8 +2,8 @@
 
 The one package you need for Scorecard modeling in Python | 评分卡建模尽在于此
 
-- [English Document](##English Document)
-- [中文文档  (Chinese Document)](#中文文档  (Chinese Document))
+- [English Document](#english-document)
+- [中文文档  (Chinese Document)](#中文文档--chinese-document)
 
 ## English Document
 
