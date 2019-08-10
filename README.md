@@ -10,9 +10,9 @@ There is a three-stage plan for ScorecardBundle:
 - Stage 2: Automate the Scorecard modeling process, including:
   - Design algorithms to evaluate explainability (e.g. mean reversion)
   - Automatically select proper discretization methods for different features
-  - 
+  - ...
 
-<img src=".\pics\framework.png">
+<img src="https://github.com/Lantianzz/ScorecardBundle/blob/master/pics/framework.svg">
 
 ## Quick Start
 
