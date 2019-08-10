@@ -12,7 +12,7 @@ There is a three-stage plan for ScorecardBundle:
   - Automatically select proper discretization methods for different features
   - 
 
-<img src=".\pics\framework.svg">
+<img src=".\pics\framework.png">
 
 ## Quick Start
 
