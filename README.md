@@ -1,6 +1,11 @@
 # Scorecard-Bundle
 
-The one package you need for Scorecard modeling in Python.
+The one package you need for Scorecard modeling in Python | 评分卡建模尽在于此
+
+- [English Document](##English Document)
+- [中文文档  (Chinese Document)](#中文文档  (Chinese Document))
+
+## English Document
 
 **Scorecard-Bundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in ScorecardBundle comply with the fit-transform-predict convention in Scikit-learn.
 
@@ -107,3 +112,7 @@ me.lift_curve(y_train_binary.values, scored_result['TotalScore'].values, output_
 - Fix errors in notes. E.g. the default criterion for corr should be 0.6 rather than 0.7;
 - Add example of using sklearn.utils.class_weight;
 - Make Sure most default parameters  are optimal for Suitability scorecard model; 
+
+
+
+## 中文文档  (Chinese Document)

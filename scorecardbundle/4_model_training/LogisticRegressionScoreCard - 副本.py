@@ -43,27 +43,28 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     
     Parameters
     ----------
-    woe_transformer: WOE transformer object from WOE module.
+	 woe_transformer: WOE transformer object from WOE module.
 
     C: regularization parameter in linear regression. Default value is 1. 
        See details in scikit-learn document.
 
-    class_weight: weights for each class of target variable in linear 
-        regression. This is to deal with imbalanced training data. 
-        Default is None. See details in scikit-learn document. 
-        We can use class_weight from scikit-learn to calculate the weights.
-        >>> from sklearn.utils import class_weight
-        >>> class_weights2 = class_weight.compute_class_weight('balanced', 
-                                                              np.unique(y), y)
+    class_weight: weights for each class of target variable in linear regression. 
+       This is to deal with imbalanced training data. Default is None.
+       See details in scikit-learn document. 
+       We can use class_weight from scikit-learn to calculate this.
+       from sklearn.utils import class_weight
+       class_weights2 = class_weight.compute_class_weight('balanced', 
+                                              np.unique(y_train_binary.values), 
+                                              y_train_binary.values)
 
     random_state: random seed in linear regression. Default is None.
-        See details in scikit-learn document.
+       See details in scikit-learn document.
 
-    PDO: Points to double odds. One of the parameters of Scorecard.
-        Default value is 20. A positive value means the higher the 
-        scores, the lower the probability of y being 1. A negative 
-        value means the higher the scores, the higher the probability
-        of y being 1.
+    PDO: Points to double odds. One of the parameters in scorecard.
+       Default value is 20. A positive value means the higher the 
+       scores, the lower the probability of y being 1. A negative 
+       value means the higher the scores, the higher the probability
+       of y being 1.
 
     basePoints: the score for base odds(# of y=1/ # of y=0). Default is 100.
 
