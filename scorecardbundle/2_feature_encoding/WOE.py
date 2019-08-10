@@ -3,7 +3,7 @@
 Created on Mon Dec 3 2018
 Updated on Sat Aug 10 2019
 
-@author: Lantian
+@authors: Lantian ZHANG <zhanglantian1992@163.com>
 
 The codes below perform WOE transformation and IV calculation for features 
 The data format of features should be string or number.
@@ -41,7 +41,7 @@ def woe_vector(x, y, epslon=1e-10):
     
     # goods, bads for each group
     x_unique, local_total = np.unique(x, return_counts=True)
-    mask = (x.reshape(1,-1) == x_unique.reshape(1,-1).T)
+    mask = (x.reshape(1,-1) == x_unique.reshape(1,-1).T) # identify groups
     local_pos = np.array([y[m].sum() for m in mask])
     local_neg = local_total - local_pos
     local_odds = local_pos/(local_neg+epslon)

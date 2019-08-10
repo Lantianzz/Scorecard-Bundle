@@ -1,16 +1,23 @@
-# ScorecardBundle
+# Scorecard-Bundle
 
 The one package you need for Scorecard modeling in Python.
 
-**ScorecardBundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in ScorecardBundle comply with the fit-transform-predict convention in Scikit-learn.
+**Scorecard-Bundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in ScorecardBundle comply with the fit-transform-predict convention in Scikit-learn.
 
-There is a three-stage plan for ScorecardBundle:
+There is a three-stage plan for Scorecard-Bundle:
 
-- Stage 1: Replicate all functions of convectional Scorecard modeling, including Chi-Merge discretization, WOE transformation, IV calculation, Colinearity evaluation, Logistic regression training and Scorecard transformation.
-- Stage 2: Automate the Scorecard modeling process, including:
-  - Design algorithms to evaluate explainability (e.g. mean reversion)
-  - Automatically select proper discretization methods for different features
-  - ...
+- Stage 1: Replicate all functions of convectional Scorecard modeling, including:
+  - Feature discretization with Chi-Merge;
+  - WOE transformation and IV calculation;
+  - Feature selection criteria computation (predictability + co-linearity)
+  - Scorecard based on Logistic regression;
+  - Model scores discretization (if ratings are necessary);
+  - Model Evaluation (binary classification evaluation + clustering quality evaluation);
+- Stage 2: Automate the modeling process, including:
+  - Design algorithms to evaluate the explainability of features (e.g. mean reversion);
+  - Automatically select proper discretization methods for different features;
+  - Automatically perform hyper-parameter tuning for LR-based Scorecard;
+  - Automatically perform feature selection with consideration of predictability, co-linearity and explainability;
 
 <img src="https://github.com/Lantianzz/ScorecardBundle/blob/master/pics/framework.svg">
 
