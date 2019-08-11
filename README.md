@@ -9,22 +9,24 @@ The one package you need for Scorecard modeling in Python | 评分卡建模尽�
 
 **Scorecard-Bundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in ScorecardBundle comply with the fit-transform-predict convention in Scikit-learn.
 
-There is a two-stage plan for Scorecard-Bundle:
+There is a three-stage plan for Scorecard-Bundle:
 
-- Stage 1: Replicate all functions of convectional Scorecard modeling, including:
+- Stage 1 (Have been covered in v1.0): Replicate all functions of convectional Scorecard modeling, including:
   - Feature discretization with Chi-Merge;
   - WOE transformation and IV calculation;
-  - Feature selection criteria computation (predictability + co-linearity)
   - Scorecard based on Logistic regression;
+  - Model Evaluation (binary classification evaluation);
+- Stage 2 (Will be covered in v2.0): Add additional functionality, including:
+  - Feature selection criteria (predictability + co-linearity + explainability)
   - Model scores discretization (if ratings are necessary);
-  - Model Evaluation (binary classification evaluation + clustering quality evaluation);
-- Stage 2: Automate the modeling process, including:
-  - Design algorithms to evaluate the explainability of features (e.g. mean reversion);
+  - Model Rating Evaluation (clustering quality evaluation);
+  - Add discretization methods other than ChiMerge;
+  - Add support for Scorecard based on algorithms other than Logistic Regression;
+- Stage 3 (Will be covered in v3.0): Automate the modeling process, including:
   - Automatically select proper discretization methods for different features;
   - Automatically perform hyper-parameter tuning for LR-based Scorecard;
   - Automatically perform feature selection with consideration of predictability, co-linearity and explainability;
   - Provide an model pipeline that takes the input features, perform all the tasks (discretization, woe, etc.) inside it and return the scored samples and Scorecard rules. This simplify the modeling process to one line of code `model.fit_predict(X, y)`;
-  - Add support for Scorecard based on algorithms other than Logistic Regression;
 
 <img src="https://github.com/Lantianzz/ScorecardBundle/blob/master/pics/framework.svg">
 

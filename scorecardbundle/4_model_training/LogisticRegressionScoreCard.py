@@ -140,6 +140,10 @@ def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
     scores = map_np(intervals, score_dict)
     return scores
 
+# ============================================================
+# Main Functions
+# ============================================================
+
 class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     """Take woe-ed features, fit a regression and turn it into a scorecard
     pandas0.23.4 should be installed.
@@ -166,9 +170,9 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     random_state: int, optional(default=None)
         random seed in linear regression. See details in scikit-learn doc.
 
-    PDO: int,  optional(default=20)
+    PDO: int,  optional(default=-20)
         Points to double odds. One of the parameters of Scorecard.
-        Default value is 20. 
+        Default value is -20. 
         A positive value means the higher the scores, the lower 
         the probability of y being 1. 
         A negative value means the higher the scores, the higher 
@@ -215,7 +219,7 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     """     
     
     def __init__(self, woe_transformer, C=1, class_weight=None, random_state=None,
-                 PDO=20, basePoints = 100, decimal=0, start_points = False,
+                 PDO=-20, basePoints = 100, decimal=0, start_points = False,
                  output_option='excel', output_path=None, verbose=False, 
                  delimiter='~'):
         
