@@ -45,16 +45,21 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     ----------
     woe_transformer: WOE transformer object from WOE module.
 
-    C: regularization parameter in linear regression. Default value is 1. 
-       See details in scikit-learn document.
+    C:  float, optional(Default=1.0)
+        regularization parameter in linear regression. Default value is 1. 
+        A smaller value implies more regularization.
+        See details in scikit-learn document.
 
-    class_weight: weights for each class of target variable in linear 
-        regression. This is to deal with imbalanced training data. 
-        Default is None. See details in scikit-learn document. 
-        We can use class_weight from scikit-learn to calculate the weights.
+    class_weight: dict, optional(default=None)
+    {class_label: weight}
+    weights for each class of samples in linear regression. 
+        This is to deal with imbalanced training data. 
+        Default is 'auto'. This will aotumatically use class_weight from 
+        scikit-learn to calculate the weights. The equivalent codes are:
         >>> from sklearn.utils import class_weight
         >>> class_weights2 = class_weight.compute_class_weight('balanced', 
                                                               np.unique(y), y)
+
 
     random_state: random seed in linear regression. Default is None.
         See details in scikit-learn document.

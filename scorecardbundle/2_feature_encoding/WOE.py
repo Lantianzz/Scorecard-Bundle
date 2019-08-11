@@ -23,8 +23,9 @@ def woe_vector(x, y, epslon=1e-10):
     y: numpy.array, shape (number of examples,)
             The target column (or dependent variable).
             
-    epslon: replace 0 with a very small number during division 
-            or logrithm to avoid infinite value. Default value is 1e-10   
+    epslon: float, optional(default=1e-10)
+            Replace 0 with a very small number during division 
+            or logrithm to avoid infinite value.   
     
     Return
     ----------
@@ -78,13 +79,14 @@ class WOE(BaseEstimator, TransformerMixin):
     
     Parameters
     ----------
-    epslon: replace 0 with a very small number during division 
-            or logrithm to avoid infinite value. Default value is 1e-10. 
+    epslon: float, optional(default=1e-10)
+            Replace 0 with a very small number during division 
+            or logrithm to avoid infinite value.       
     
-    output_dataframe: boolean
-        if output_dataframe is set to True. The transform() function will
-        return pandas.DataFrame. If it is set to False, the output will
-        be numpy ndarray. The default value is False.
+    output_dataframe: boolean, optional(default=False)
+            if output_dataframe is set to True. The transform() function will
+            return pandas.DataFrame. If it is set to False, the output will
+            be numpy ndarray.
 
     Attributes
     ----------

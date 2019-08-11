@@ -94,11 +94,11 @@ def _assign_interval_str(x, boundaries, delimiter='~'):
     boundaries: numpy.array, shape (number of interval boundaries,)
         The boundary values of the intervals to discretize target x. 
 
-    delimiter: string
+    delimiter: string, optional(default='~')
         The returned array will be an array of intervals. Each interval is 
-        representated by string (i.e. '1~2'), which takes the form lower+delimiter+upper.
-        This parameter control the simbol that connects the lower and upper boundaries.
-        The default value is '~'.    
+        representated by string (i.e. '1~2'), which takes the form 
+        lower+delimiter+upper. This parameter control the symbol that 
+        connects the lower and upper boundaries.
     Returns
     -------
     intervals_str: numpy.array, shape (number of examples,)
@@ -198,7 +198,11 @@ def interval_to_boundary_vector(vector, delimiter='~'):
     vector: numpy.array, shape (number of examples,)
         The array of interval whose unique boundaries will 
         be returned.
-    
+
+    delimiter: string, optional(default='~')
+        The interval is representated by string (i.e. '1~2'), 
+        which takes the form lower+delimiter+upper. This parameter 
+        control the symbol that connects the lower and upper boundaries.    
     Returns
     -------
     boundaries: numpy.array, shape (number of interval boundaries,)
@@ -227,27 +231,23 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
     y: numpy.array, shape (number of examples,)
         The target array (or dependent variable).
     
-    m: integer
+    m: integer, optional(default=2)
         The number of adjacent intervals to compare during chi-squared test.
-        The default value is 2.
     
-    confidence_level: float
+    confidence_level: float, optional(default=0.9)
         The confidence level to determine the threshold for intervals to 
         be considered as different during the chi-square test.
-        The default value is 0.9.
     
-    max_intervals: int or None
+    max_intervals: int, optional(default=None)
         Specify the maximum number of intervals the discretized array will have.
         Sometimes (like when training a scorecard model) fewer intervals are 
         prefered. If do not need this option just set it to None.
-        The default value is None.
 
-    min_intervals: int
+    min_intervals: int, optional(default=None)
         Specify the mininum number of intervals the discretized array will have.
         If do not need this option just set it to None.
-        The default value is None.
 
-    initial_intervals: int or None
+    initial_intervals: int, optional(default=100)
         The original Chimerge algorithm starts by putting each unique value 
         in an interval and merging through a loop. This can be time-consumming 
         when sample size is large. 
@@ -255,15 +255,14 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         will make the algorithm start at the number of intervals specified (the 
         initial intervals are generated using quantiles). This can greatly shorten 
         the run time. If do not need this option just set it to None.
-        The default value is 100.    
-    
-    delimiter: string
+     
+    delimiter: string, optional(default='~')
         The returned array will be an array of intervals. Each interval is 
-        representated by string (i.e. '1~2'), which takes the form lower+delimiter+upper.
-        This parameter control the simbol that connects the lower and upper boundaries.
-        The default value is '~'.
+        representated by string (i.e. '1~2'), which takes the form 
+        lower+delimiter+upper. This parameter control the symbol that 
+        connects the lower and upper boundaries.
     
-    output_boundary: boolean
+    output_boundary: boolean, optional(default=False)
         If output_boundary is set to True. This function will output the 
         unique upper  boundaries of discretized array. If it is set to False,
         This funciton will output the discretized array.
@@ -372,71 +371,68 @@ class ChiMerge(BaseEstimator, TransformerMixin):
     Parameters
     ----------
 
-    m: integer
+    m: integer, optional(default=2)
         The number of adjacent intervals to compare during chi-squared test.
-        The default value is 2.
     
-    confidence_level: float
+    confidence_level: float, optional(default=0.9)
         The confidence level to determine the threshold for intervals to 
         be considered as different during the chi-square test.
-        The default value is 0.9.
     
-    max_intervals: int or None
-        Specify the maximum number of intervals of the discretized array.
+    max_intervals: int, optional(default=None)
+        Specify the maximum number of intervals the discretized array will have.
         Sometimes (like when training a scorecard model) fewer intervals are 
         prefered. If do not need this option just set it to None.
-        The default value is None.
 
-    min_intervals: int
-        Specify the mininum number of intervals of the discretized array.
+    min_intervals: int, optional(default=None)
+        Specify the mininum number of intervals the discretized array will have.
         If do not need this option just set it to None.
-        The default value is None.
 
-    initial_intervals: int or None
+    initial_intervals: int, optional(default=100)
         The original Chimerge algorithm starts by putting each unique value 
         in an interval and merging through a loop. This can be time-consumming 
         when sample size is large. 
-        Set the initial_intervals option to values other than None (like 100) 
-        will make the algorithm start at the number of intervals specified 
-        (the initial intervals are generated using quantiles). This can 
-        greatly shorten the run time. If do not need this option just 
-        set it to None. The default value is 100.    
-    
-    delimiter: string
+        Set the initial_intervals option to values other than None (like 10 or 100) 
+        will make the algorithm start at the number of intervals specified (the 
+        initial intervals are generated using quantiles). This can greatly shorten 
+        the run time. If do not need this option just set it to None.
+     
+    delimiter: string, optional(default='~')
         The returned array will be an array of intervals. Each interval is 
         representated by string (i.e. '1~2'), which takes the form 
-        lower+delimiter+upper. This parameter control the simbol that 
+        lower+delimiter+upper. This parameter control the symbol that 
         connects the lower and upper boundaries.
-        The default value is '~'.  
-
-    output_dataframe: boolean
-        if output_dataframe is set to True. The transform() function will
-        return pandas.DataFrame. If it is set to False, the output will
-        be numpy ndarray. The default value is False        
+    
+    output_boundary: boolean, optional(default=False)
+        If output_boundary is set to True. This function will output the 
+        unique upper  boundaries of discretized array. If it is set to False,
+        This funciton will output the discretized array.
+        For example, if it is set to True and the array is discretized into 
+        3 groups (1,2),(2,3),(3,4), this funciton will output an array of 
+        [1,3,4].
 
     Attributes
     ----------
     boundaries_: dict
-            a dictionary that maps feature name to its merged boundaries.
+        A dictionary that maps feature name to its merged boundaries.
     fit_sample_size_: int
-            The sampel size of fitted data.
+        The sampel size of fitted data.
     transform_sample_size_:  int
-            The sampel size of transformed data.
+        The sampel size of transformed data.
     num_of_x_:  int
-            The number of features.
+        The number of features.
     columns_:  iterable
-            An array of list of feature names.
+        An array of list of feature names.
 
     Methods
     -------
     fit(X, y): 
-            fit the ChiMerge algorithm to the feature.
+        fit the ChiMerge algorithm to the feature.
 
     transform(X): 
-            transform the feature using the ChiMerge fitted.
+        transform the feature using the ChiMerge fitted.
 
     fit_transform(X, y): 
-            fit the ChiMerge algorithm to the feature and transform it.    
+        fit the ChiMerge algorithm to the feature and transform it.    
     """
    
     def __init__(self, m=2, confidence_level=0.9, max_intervals=None, 
