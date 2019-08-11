@@ -13,29 +13,132 @@ import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
-def _applyScoreCard(scorecard, factor_name, factor_column):
+# ============================================================
+# Basic Functions
+# ============================================================
+
+def _assign_interval_base(x, boundaries):
+    """Assign each value in x an interval from boundaries.
+    
+    Parameters
+    ----------
+    x: numpy.array, shape (number of examples,)
+        The column of data that need to be discretized.
+    
+    boundaries: numpy.array, shape (number of interval boundaries,)
+        The boundary values of the intervals to discretize target x. 
+    
+    Returns
+    -------
+    intervals: numpy.ndarray, shape (number of examples,2)
+        The array of intervals that are closed to the right. 
+        The left column and right column of the array are the 
+        left and right boundary respectively.
+    """    
+    # Add -inf and inf to the start and end of boundaries
+    boundaries = np.unique(
+        np.concatenate((np.array([-float('inf')]),
+                        boundaries,np.array([float('inf')])), 
+                        axis=0))
+    # The max boundary that is smaller than x_i is its lower boundary.
+    # The min boundary that is >= than x_i is its upper boundary. 
+    # Adding equal is because all intervals here are closed to the right.
+    boundaries_diff_boolean = x.reshape(1,-1).T > boundaries.reshape(1,-1) 
+    lowers = [boundaries[b].max() for b in boundaries_diff_boolean] 
+    uppers = [boundaries[b].min() for b in ~boundaries_diff_boolean] 
+    # Array of intervals that are closed to the right
+    intervals= np.stack((lowers, uppers), axis=1) 
+    return intervals
+
+def assign_interval_str(x, boundaries, delimiter='~'):
+    """Assign each value in x an interval from boundaries.
+    
+    Parameters
+    ----------
+    x: numpy.array, shape (number of examples,)
+        The column of data that need to be discretized.
+    
+    boundaries: numpy.array, shape (number of interval boundaries,)
+        The boundary values of the intervals to discretize target x. 
+
+    delimiter: string, optional(default='~')
+        The returned array will be an array of intervals. Each interval is 
+        representated by string (i.e. '1~2'), which takes the form 
+        lower+delimiter+upper. This parameter control the symbol that 
+        connects the lower and upper boundaries.
+    Returns
+    -------
+    intervals_str: numpy.array, shape (number of examples,)
+        Discretized result. The array of intervals that represented by strings. 
+    """
+    intervals= _assign_interval_base(x, boundaries)
+    # use join rather than use a+delimiter+b makes this line faster
+    intervals_str = np.array(
+        [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
+                                                        intervals[:,1])]
+        )
+    return intervals_str
+
+def interval_to_boundary_vector(vector, delimiter='~'):
+    """Transform an array of interval strings into the 
+    unique boundaries of such intervals.
+    
+    Parameters
+    ----------
+    vector: numpy.array, shape (number of examples,)
+        The array of interval whose unique boundaries will 
+        be returned.
+
+    delimiter: string, optional(default='~')
+        The interval is representated by string (i.e. '1~2'), 
+        which takes the form lower+delimiter+upper. This parameter 
+        control the symbol that connects the lower and upper boundaries.    
+    Returns
+    -------
+    boundaries: numpy.array, shape (number of interval boundaries,)
+        An array of boundary values.
+    """
+    boundaries = np.array(list(set(delimiter.join(np.unique(vector)).split(delimiter))))
+    boundaries = boundaries[(boundaries!='-inf') & (boundaries!='inf')].astype(float)
+    return boundaries
+
+def map_np(array, dictionary):
+    """map function for numpy array
+    Parameters
+    ----------
+    array: numpy.array, shape (number of examples,)
+            The array of data to map values to.
+    
+    distionary: dict
+            The distionary object.
+
+    Return
+    ----------
+    result: numpy.array, shape (number of examples,)
+            The mapped result.         
+    """
+    return [dictionary[e] for e in array]
+
+def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
     """Apply the scorecard to a column. Return the score for each value.
     
     Parameters
     ----------
-    scorecard: pandas.DataFrame, the scorecard.   
+    scorecard: pandas.DataFrame,
+        the Scorecard rule table.   
     
-    factor_name: string, the name of the feature.
+    feature_name: string, 
+        the name of the feature to score.
     
-    factor_column: pandas.Series, the values of the feature.
+    feature_array: numpy.array, 
+        the values of the feature to score.
     """
-    score_rules = scorecard[scorecard['factor']==factor_name]
-    interval_index = pd.IntervalIndex(score_rules['value'].values)
-    return pd.Series([score_rules.iloc[interval_index.get_loc(factor_value),:]['score'] for factor_value in factor_column.values])
-
-def _str2interval(str_interval):
-    """convert string interval (e.g. (-0.1, 1.0]) to pandas.Interval
-    This is useful when the scorecard is load from local file and all intervals become string.
-    """
-    return pd.Interval(
-                float(str_interval.split()[0].replace('(','').replace(')','').replace('[','').replace(']','').replace(',','').replace(' ','')), 
-                float(str_interval.split()[1].replace('(','').replace(')','').replace('[','').replace(']','').replace(',','').replace(' ','')),
-             closed='right')
+    score_rules = scorecard[scorecard['feature']==feature_name]
+    boundaries = interval_to_boundary_vector(score_rules.value.values, delimiter=delimiter)
+    intervals = assign_interval_str(feature_array, boundaries, delimiter=delimiter)
+    score_dict = dict(zip(score_rules.value, score_rules.score))
+    scores = map_np(intervals, score_dict)
+    return scores
 
 class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     """Take woe-ed features, fit a regression and turn it into a scorecard
@@ -51,222 +154,219 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         See details in scikit-learn document.
 
     class_weight: dict, optional(default=None)
-    {class_label: weight}
-    weights for each class of samples in linear regression. 
-        This is to deal with imbalanced training data. 
-        Default is 'auto'. This will aotumatically use class_weight from 
-        scikit-learn to calculate the weights. The equivalent codes are:
+        weights for each class of samples (e.g. {class_label: weight}) 
+        in linear regression. This is to deal with imbalanced training data. 
+        Setting this parameter to 'auto' will aotumatically use 
+        class_weight function from scikit-learn to calculate the weights. 
+        The equivalent codes are:
         >>> from sklearn.utils import class_weight
-        >>> class_weights2 = class_weight.compute_class_weight('balanced', 
+        >>> class_weights = class_weight.compute_class_weight('balanced', 
                                                               np.unique(y), y)
 
+    random_state: int, optional(default=None)
+        random seed in linear regression. See details in scikit-learn doc.
 
-    random_state: random seed in linear regression. Default is None.
-        See details in scikit-learn document.
+    PDO: int,  optional(default=20)
+        Points to double odds. One of the parameters of Scorecard.
+        Default value is 20. 
+        A positive value means the higher the scores, the lower 
+        the probability of y being 1. 
+        A negative value means the higher the scores, the higher 
+        the probability of y being 1.
 
-    PDO: Points to double odds. One of the parameters of Scorecard.
-        Default value is 20. A positive value means the higher the 
-        scores, the lower the probability of y being 1. A negative 
-        value means the higher the scores, the higher the probability
-        of y being 1.
+    basePoints: int,  optional(default=100)
+        the score for base odds(# of y=1/ # of y=0).
 
-    basePoints: the score for base odds(# of y=1/ # of y=0). Default is 100.
+    decimal: int,  optional(default=0)
+        Control the number of decimals that the output scores have.
+        Default is 0 (no decimal).
 
-    decimal: Control the number of decimals that the output scores have.
-        Default is 0 (no decimal)
+    start_points: boolean, optional(default=False)
+        There are two types of scorecards, with and without start points.
+        True means the scorecard will have a start poitns. 
 
-    start_points: There are two types of scorecards, with and without start points.
-        True means the scorecard will have a start poitns. Default is False.
+    output_option: string, optional(default='excel')
+        Controls the output format of scorecard. For now 'excel' is 
+        the only option.
 
-    output_option: Controls the output format of scorecard. For now 'excel' is 
-         the only option.
+    output_path: string, optional(default=None)
+        The location to save the scorecard. e.g. r'D:\\Work\\jupyter\\'.
 
-    output_path: The location to save the scorecard. e.g. r'D:\\Work\\jupyter\\'
-         Default is None.          
+    verbose: boolean, optioanl(default=False)
+        When verbose is set to False, the predict() method only returns
+        the total scores of samples. In this case the output of predict() 
+        method will be numpy.array;
+        When verbose is set to True, the predict() method will return
+        the total scores, as well as the scores of each feature. In this case
+        The output of predict() method will be pandas.DataFrame in order to 
+        specify the feature names.
 
+    delimiter: string, optional(default='~')
+        The feature interval is representated by string (i.e. '1~2'), 
+        which takes the form lower+delimiter+upper. This parameter 
+        is the symbol that connects the lower and upper boundaries.
+    
     Attributes
     ---------- 
     woe_df_: pandas.DataFrame, the scorecard.
     
     AB_ : A and B when converting regression to scorecard.
     
-    Code Examples
-    ----------    
-    import sys
-    sys.path.append(r'D:\BaiduNetdiskDownload\0.codes\Algorithm') #put codes in this location
-    import ChiMerge as cm
-    import ScoreCard as sc
-    import WOE
-    import ModelEvaluation as me
-    import Score2Rating as rating
-    
-    # chi2
-    trans_chi2 = cm.ChiMerge(max_intervals=6,initial_intervals=100)
-    result1 = trans_chi2.fit_transform(df, y_train_binary)
-    #trans_chi2.A_dict
-    
-    # woe
-    trans_woe = WOE.WOE(max_features=20)
-    result2 = trans_woe.fit_transform(result1, y_train_binary)
-    
-    # scorecard 
-    scorecard = sc.ScoreCard(woe_transformer=trans_woe, decimal=0, PDO=-20, basePoints=100)
-    scorecard.fit(result2, y_train_binary)
-    scored_result = scorecard.predict(df)
-    
-    # evaluate
-    output_path = r'D:\\Work\\jupyter\\'
-    me.ks_stat(y_train_binary.values, scored_result['TotalScore'].values) 
-    me.ks(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path) 
-    me.roc(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path) 
-    me.precision_recall(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path) 
-    me.lift_curve(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path)
-    
-    me.plot_all(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path)
-    
-    # Convert scores to investor suitability rating (irrelevant to standard scorecard modeling)
-    rating_result = rating.score2rating(scored_result['TotalScore'], y_train, output_path)  
     """     
     
     def __init__(self, woe_transformer, C=1, class_weight=None, random_state=None,
-                 PDO=-10, basePoints = 60, decimal=0, start_points = False,
-                 output_option='excel', output_path=None):
+                 PDO=20, basePoints = 100, decimal=0, start_points = False,
+                 output_option='excel', output_path=None, verbose=False, 
+                 delimiter='~'):
         
-        self.woe_transformer = woe_transformer
-        self.C = C
-        self.class_weight = class_weight
-        self.random_state = random_state
-        self.PDO = PDO
-        self.basePoints = basePoints
-        self.output_option = output_option
-        self.decimal = decimal
-        self.output_path = output_path
-        self.start_points = start_points
+        self.__woe_transformer__ = woe_transformer
+        self.__C__ = C
+        self.__class_weight__ = class_weight
+        self.__random_state__ = random_state
+        self.__PDO__ = PDO
+        self.__basePoints__ = basePoints
+        self.__output_option__ = output_option
+        self.__decimal__ = decimal
+        self.__output_path__ = output_path
+        self.__start_points__ = start_points
+        self.__verbose__ = verbose
+        self.__delimiter__ = delimiter
     
-    def fit(self, X, y):
+    def fit(self, woed_X, y):
+        """
+        Parameters
+        ----------
+        woed_X: numpy.ndarray or pandas.DataFrame, shape (number of examples, 
+                                                     number of features)
+            The woe encoded X.
+        
+        y: numpy.array or pandas.Series, shape (number of examples,)
+            The target array (or dependent variable).
+        """ 
 
-        positive, total = y.sum(), len(y)    
-        self.baseOdds_ = positive / (total - positive) 
-        self.p_ = self.baseOdds_  / (1 + self.baseOdds_)
+        # if X is pandas.DataFrame, turn it into numpy.ndarray and 
+        # associate each column array with column names.
+        # if X is numpy.ndarray, generate column names for it (x1, x2,...)
+        self.fit_sample_size_, self.num_of_x_ = woed_X.shape
+        if isinstance(woed_X, pd.DataFrame):
+            self.columns_ = woed_X.columns.values # column names
+            features = woed_X.values
+        elif isinstance(woed_X, np.ndarray):
+            self.columns_ = np.array(
+                [''.join(('x',str(a))) for a in range(self.num_of_x_)]
+                ) #  # column names (i.e. x0, x1, ...)
+            features = woed_X
+        else:
+            raise TypeError('woed_X should be either numpy.ndarray or pandas.DataFrame')
 
-        B = self.PDO/np.log(2)
-        A = self.basePoints + B * np.log(self.baseOdds_)
+        if isinstance(y, pd.Series):
+            target = y.values
+        elif isinstance(y, np.ndarray):
+            target = y
+        else:
+            raise TypeError('y should be either numpy.array or pandas.Series')
+
+        # Basic settings of Scorecard
+        positive, total = y.sum(), y.shape[0]   
+        self.__baseOdds__ = positive / (total - positive) 
+        self.__p__ = self.__baseOdds__  / (1 + self.__baseOdds__)
+        B = self.__PDO__/np.log(2)
+        A = self.__basePoints__ + B * np.log(self.__baseOdds__)
         self.AB_ = (A, B)
         
-        # concat vertically all woe values
+        # Concat vertically all woe values (scorecard rules table)
         woe_list = [pd.concat([
-                pd.Series(len(self.woe_transformer.result_dict_[col][0])*[col]),
-                pd.Series(list(self.woe_transformer.result_dict_[col][0].keys())),
-                pd.Series(list(self.woe_transformer.result_dict_[col][0].values()))
-                ],axis=1).set_index(0) for col in X.columns]
-        self.woe_df_ = pd.concat(woe_list,axis=0).rename(columns={1:'value',2:'woe'})
+           pd.Series([col]*len(self.__woe_transformer__.result_dict_[col][0])), # Name of x
+           pd.Series(list(self.__woe_transformer__.result_dict_[col][0].keys())), # interval strings of x 
+           pd.Series(list(self.__woe_transformer__.result_dict_[col][0].values())) # woe values of x
+           ],axis=1) for col in self.columns_]
+        self.woe_df_ = pd.concat(woe_list, axis=0, ignore_index=True
+                                 ).rename(columns={0:'feature',1:'value',2:'woe'})
 
-        # fit a regression
-        lr = LogisticRegression(C=self.C, class_weight=self.class_weight,
-                                random_state=self.random_state)
-        lr.fit(X, y)
+        # Fit a logistic regression
+        lr = LogisticRegression(C=self.__C__, 
+                                class_weight=self.__class_weight__,
+                                random_state=self.__random_state__)
+        lr.fit(features, y)
         
         # Calculate scores for each value in each feature, and the start scores
-        beta_map = dict(zip(list(X.columns),lr.coef_[0,:]))
-        self.woe_df_['beta'] = pd.Series(self.woe_df_.index).map(beta_map).values
-        self.woe_df_ = self.woe_df_.reset_index().rename(columns={0:'factor'})
+        beta_map = dict(zip(list(self.columns_), 
+                            lr.coef_[0,:]))
+        self.woe_df_['beta'] = map_np(self.woe_df_.feature, beta_map)
         self.startPoints_ = A - B * lr.intercept_[0]    
         
-        if self.start_points is True:
-            self.woe_df_['score'] = np.around(-B * self.woe_df_['beta'].values * self.woe_df_['woe'].values, 
-                       decimals=self.decimal)
-            startPoints = pd.DataFrame({'factor': ['StartPoints'],
+        # Rule table for Scoracard
+        if self.__start_points__ is True:
+            self.woe_df_['score'] = np.around(
+                -B * self.woe_df_['beta'].values * self.woe_df_['woe'].values, 
+                decimals=self.__decimal__)
+            startPoints = pd.DataFrame({'feature': ['StartPoints'],
                 'value': [np.nan],
                 'woe': [np.nan],
                 'beta': [np.nan],
-                'score': np.around(self.startPoints_, decimals=self.decimal)
+                'score': np.around(self.startPoints_, decimals=self.__decimal__)
                 })
             #the scorecard
-            self.woe_df_ = pd.concat([startPoints, self.woe_df_],axis=0,ignore_index=True)  
-        elif self.start_points is False:  
-            self.woe_df_['score'] = np.around(-B * self.woe_df_['beta'].values * self.woe_df_['woe'].values + self.startPoints_ / X.shape[1], 
-                       decimals=self.decimal)
-        
-        # change the first and last boundaries into -inf and inf
-        for factor in pd.unique(self.woe_df_.factor):
-            id_min = self.woe_df_[self.woe_df_.factor == factor].index.min()
-            id_max = self.woe_df_[self.woe_df_.factor == factor].index.max()
-            
-            self.woe_df_.iloc[id_min,1] = pd.Interval(-float('inf'),
-                        self.woe_df_.iloc[id_min,1].right,
-                        closed='right')
-            
-            self.woe_df_.iloc[id_max,1] = pd.Interval(
-                    self.woe_df_.iloc[id_max,1].left,
-                    float('inf'),
-                        closed='right')
+            self.woe_df_ = pd.concat([startPoints, self.woe_df_],
+                                     axis=0,
+                                     ignore_index=True)  
+        elif self.__start_points__ is False:  
+            self.woe_df_['score'] = np.around(
+                -B * self.woe_df_['beta'].values * self.woe_df_['woe'].values + self.startPoints_ / self.num_of_x_, 
+                decimals=self.__decimal__)
 
-        output = self.woe_df_.copy()
-        output['value'] = output.value.astype(str)
         # Output the scorecard
-        if self.output_option == 'excel' and self.output_path is None:
-            output.to_excel('scorecards.xlsx', index=False)
-        elif self.output_option == 'excel' and self.output_path is not None:
-            output.to_excel(self.output_path+'scorecards.xlsx', index=False)
-        self._lr = lr
+        if self.__output_option__ == 'excel' and self.__output_path__ is None:
+            self.woe_df_.to_excel('scorecards.xlsx', index=False)
+        elif self.__output_option__ == 'excel' and self.__output_path__ is not None:
+            self.woe_df_.to_excel(self.__output_path__+'scorecards.xlsx', index=False)
+        self.lr_ = lr
+
     def predict(self, X_beforeWOE, load_scorecard=None):
         """Apply the scorecard.
         
         Parameters
         ----------
-        X_beforeWOE: pandas.DataFrame. Features of samples (before woe-transformation)   
-        
-        load_scorecard: pandas.DataFrame. If we want to use a modified scorecard
+        X_beforeWOE: numpy.ndarray or pandas.DataFrame, shape (number of examples, 
+                                                     number of features)
+            The features before WOE transformation (the original X).
+
+        load_scorecard: pandas.DataFrame, optional(default=None)
+            If we want to use a modified scorecard
             rather than the one automatically generated, we can pass the scorecard
-            we want to use using this parameter. Default is None.
+            we want to use using this parameter. 
         """        
-        
+
+        # if X is pandas.DataFrame, turn it into numpy.ndarray and 
+        # associate each column array with column names.
+        # if X is numpy.ndarray, generate column names for it (x1, x2,...)
+        self.transform_sample_size_ = X_beforeWOE.shape[0]
+        if isinstance(X_beforeWOE, pd.DataFrame):
+            features = X_beforeWOE.values.T
+        elif isinstance(X_beforeWOE, np.ndarray):
+            features = X_beforeWOE.T
+        else:
+            raise TypeError('X_beforeWOE should be either numpy.ndarray or pandas.DataFrame')
+
+        # Check whether the user choose to load a Scorecard rule table
         if load_scorecard is None:
             scorecard = self.woe_df_
         else:
             scorecard = load_scorecard               
 
-        scored_result = pd.concat([_applyScoreCard(scorecard, col, X_beforeWOE[col]) for col in scorecard['factor'].drop_duplicates().values], 
-                                   axis=1)
-        scored_result.columns = scorecard['factor'].drop_duplicates().values
+        # Apply the Scorecard rules
+        scored_result = pd.concat(
+            [pd.Series(_applyScoreCard(scorecard, 
+                                       name,
+                                       x, 
+                                       delimiter=self.__delimiter__
+                                        ), 
+                        name=name
+                        ) for name,x in zip(self.columns_, features)], 
+            axis=1)
         scored_result['TotalScore'] = scored_result.sum(axis=1)
-        return scored_result
-        
-    def predict_proba(self, X_beforeWOE, load_scorecard=None):
-        """Apply the scorecard.
-        
-        Parameters
-        ----------
-        X_beforeWOE: pandas.DataFrame. Features of samples (before woe-transformation)   
-        
-        load_scorecard: pandas.DataFrame. If we want to use a modified scorecard
-            rather than the one automatically generated, we can pass the scorecard
-            we want to use using this parameter. Default is None.
-        """        
-        
-        if load_scorecard is None:
-            scorecard_df = self.woe_df_
+        if self.__verbose__:
+            return scored_result
         else:
-            scorecard_df = load_scorecard               
-
-        if type(X_beforeWOE) is not pd.DataFrame:
-            X_beforeWOE = pd.DataFrame(X_beforeWOE, columns=list(scorecard_df['factor'].drop_duplicates().values))
-        
-        scored_result = pd.concat([_applyScoreCard(scorecard_df, col, X_beforeWOE[col]) for col in scorecard_df['factor'].drop_duplicates().values], 
-                                   axis=1)
-        scored_result.columns = scorecard_df['factor'].drop_duplicates().values
-        scored_result['TotalScore'] = scored_result.sum(axis=1)
-        return scored_result['TotalScore'].values            
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
+            return scored_result['TotalScore'].values
         

@@ -72,7 +72,7 @@ def map_np(array, dictionary):
     """
     return [dictionary[e] for e in array]
 
-class WOE(BaseEstimator, TransformerMixin):
+class WOE_Encoder(BaseEstimator, TransformerMixin):
     """
     Perform WOE transformation for features and calculate the information
     value (IV) of features with reference to the target variable y.
@@ -174,7 +174,7 @@ class WOE(BaseEstimator, TransformerMixin):
 
         # Apply fitted woe transformation to features
         result = np.array(
-            [map_np(d, trans_woe.result_dict_[col][0]) for d,col in zip(features,
+            [map_np(d, self.result_dict_[col][0]) for d,col in zip(features,
                                                                   self.columns_)])
         # Output
         if self.__output_dataframe__:

@@ -56,7 +56,7 @@ def _assign_interval_base(x, boundaries):
     intervals= np.stack((lowers, uppers), axis=1) 
     return intervals
 
-def _assign_interval_unique(x, boundaries):
+def assign_interval_unique(x, boundaries):
     """Assign each value in x an interval from boundaries.
     
     Parameters
@@ -83,7 +83,7 @@ def _assign_interval_unique(x, boundaries):
     unique_intervals = np.unique(intervals, axis=0)
     return intervals, unique_intervals
 
-def _assign_interval_str(x, boundaries, delimiter='~'):
+def assign_interval_str(x, boundaries, delimiter='~'):
     """Assign each value in x an interval from boundaries.
     
     Parameters
@@ -286,11 +286,11 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         boundaries = np.unique(
             np.quantile(x, np.arange(0, 1, 1/initial_intervals)[1:])
             ) # Add [1:] so that 0% persentile will not be a threshold
-        intervals, unique_intervals = _assign_interval_unique(x, boundaries)
+        intervals, unique_intervals = assign_interval_unique(x, boundaries)
     else:
         # Put each unique value of x in its own interval
         boundaries = np.unique(x)
-        intervals, unique_intervals = _assign_interval_unique(x, boundaries)     
+        intervals, unique_intervals = assign_interval_unique(x, boundaries)     
     # Return unique values as result if the # of unique x <= min_intervals
     if n_i <= min_intervals: 
         intervals_str = np.array(
@@ -340,7 +340,7 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         unique_intervals.sort(axis=0) 
 
         # Reassign intervals with the updated thresholds (unique_intervals)
-        intervals, unique_intervals = _assign_interval_unique(x, unique_intervals[:,1])
+        intervals, unique_intervals = assign_interval_unique(x, unique_intervals[:,1])
         pt_value, pt_column, pt_index = pivot_table_np(intervals[:,1], y) 
         # perform Chi-square test on each pair of m adjacent intervals 
         # use the ith interval's index as the interval pair's index
@@ -513,7 +513,7 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         else:
             raise TypeError('X should be either numpy.ndarray or pandas.DataFrame')
 
-        result = np.array([_assign_interval_str(
+        result = np.array([assign_interval_str(
                                 features[:,i],
                                 self.boundaries_[col],
                                 delimiter=self.__delimiter__
