@@ -107,7 +107,7 @@ def plot_ks(y_true, y_pred_proba, output_path=None):
     plt.ylim((0,1))
     plt.title('K-S Curve', fontdict=font_title)   
     plt.xlabel('Group of scores', fontdict=font_text)
-    plt.ylabel('Cumulated class proportion of total class size', 
+    plt.ylabel('Cumulated class proportion', 
                 fontdict=font_text)    
     plt.legend()
 
@@ -203,6 +203,7 @@ def plot_precision_recall(y_true, y_pred_proba, output_path=None):
     plt.plot(thresholds, precisions[:-1], 'b--', label='Precision')
     plt.plot(thresholds, recalls[:-1], 'g-', label='Recall')
     plt.xlabel('Threshold', fontdict=font_text)
+    plt.ylabel('Precision/Recall score', fontdict=font_text)
     plt.legend(loc='center left')
     plt.title('Precision vs Recall Curve', fontdict=font_title)
 

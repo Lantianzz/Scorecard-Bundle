@@ -7,18 +7,18 @@ The one package you need for Scorecard modeling in Python | 评分卡建模尽�
 
 ## English Document
 
-**Scorecard-Bundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in ScorecardBundle comply with the fit-transform-predict convention in Scikit-learn.
+**Scorecard-Bundle is a Python toolkit for Scorecard modeling of binary targets**. The transformer and model classes in Scorecard-Bundle **comply with Scikit-learn**‘s fit-transform-predict convention.
 
 There is a three-stage plan for Scorecard-Bundle:
 
 - Stage 1 (Have been covered in v1.0): Replicate all functions of convectional Scorecard modeling, including:
   - Feature discretization with Chi-Merge;
   - WOE transformation and IV calculation;
-  - Scorecard based on Logistic regression;
+  - Scorecard modeling based on Logistic regression;
   - Model Evaluation (binary classification evaluation);
 - Stage 2 (Will be covered in v2.0): Add additional functionality, including:
-  - Feature selection criteria (predictability + co-linearity + explainability)
-  - Model scores discretization (if ratings are necessary);
+  - Feature selection criteria (predictability + co-linearity + explainability);
+  - Model scores discretization (if ratings are required);
   - Model Rating Evaluation (clustering quality evaluation);
   - Add discretization methods other than ChiMerge;
   - Add support for Scorecard based on algorithms other than Logistic Regression;
@@ -32,50 +32,30 @@ There is a three-stage plan for Scorecard-Bundle:
 
 ## Quick Start
 
-First download the python scripts "ChiMerge", "WOE", "ScoreCard",  "ModelEvaluation",  "Score2Rating".
+### Installment
 
-~~~python
-import pickle
-import sys
-sys.path.append(r'D:\BaiduNetdiskDownload\0.codes\Algorithm') #put codes in this location
-import ChiMerge as cm
-import ScoreCard as sc
-import WOE
-import ModelEvaluation as me
-import Score2Rating as rating
+- Pip: Scorecard-Bundle can be installed with pip `pip install scorecardbundle` 
 
-#load test data
-path=r'D:\\Work\\data\\'
+- Manually: Down codes from github `<https://github.com/Lantianzz/Scorecard-Bundle>` and import them directly:
 
-pkl_file = open(path+'testData.pkl', 'rb')
-df, y_train_binary = pickle.load(pkl_file)
-pkl_file.close()
+  ~~~python
+  import sys
+  sys.path.append('E:\Github\Scorecard-Bundle') # add path that contains the codes
+  from scorecardbundle.feature_discretization import ChiMerge as cm
+  from scorecardbundle.feature_encoding import WOE as woe
+  from scorecardbundle.model_training import LogisticRegressionScoreCard as lrsc
+  from scorecardbundle.model_evaluation import ModelEvaluation as me
+  ~~~
+
+### Usage
+
+An usage example can be found in 
 
 
-# chi2
-trans_chi2 = cm.ChiMerge(max_intervals=10,initial_intervals=100)
-result1 = trans_chi2.fit_transform(df, y_train_binary)
-#trans_chi2.A_dict
 
-# woe
-trans_woe = WOE.WOE(max_features=20)
-result2 = trans_woe.fit_transform(result1, y_train_binary)
+## Documentation
 
-# scorecard 
-scorecard = sc.ScoreCard(woe_transformer=trans_woe, decimal=0, PDO=-10, basePoints=60)
-scorecard.fit(result2, y_train_binary)
-scored_result = scorecard.predict(df)
 
-# evaluate all
-output_path = r'D:\\Work\\jupyter\\'
-me.plot_all(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path)
-
-# evaluate: if prefer to plot individually
-me.ks(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path) 
-me.roc(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path) 
-me.precision_recall(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path) 
-me.lift_curve(y_train_binary.values, scored_result['TotalScore'].values, output_path=output_path)
-~~~
 
 ## Update Log
 
