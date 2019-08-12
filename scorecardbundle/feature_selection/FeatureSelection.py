@@ -6,6 +6,8 @@ Updated on Mon Aug 12 2019
 @authors: Lantian ZHANG <zhanglantian1992@163.com>
 
 """
+import pandas as pd
+import numpy as np
 
 def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
     """Calculate WOE and IV for 1 feature
