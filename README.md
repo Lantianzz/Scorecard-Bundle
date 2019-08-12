@@ -3,6 +3,13 @@
 The one package you need for Scorecard modeling in Python | 评分卡建模尽在于此
 
 - [English Document](#english-document)
+  - [Quick Start](#quick-start)
+  - [User Guide](#user-guide)
+    - [Feature discretization](#feature-discretization)
+    - [Feature encoding](#feature-encoding)
+    - [Feature selection](#feature-selection)
+    - [Model training](#model-training)
+    - [Model evaluation](#model-evaluation)
 - [中文文档  (Chinese Document)](#中文文档--chinese-document)
 
 ## English Document
@@ -30,9 +37,9 @@ There is a three-stage plan for Scorecard-Bundle:
 
 <img src="https://github.com/Lantianzz/ScorecardBundle/blob/master/pics/framework.svg">
 
-## Quick Start
+### Quick Start
 
-### Installment
+#### Installment
 
 - Pip: Scorecard-Bundle can be installed with pip `pip install scorecardbundle` 
 
@@ -47,22 +54,22 @@ There is a three-stage plan for Scorecard-Bundle:
   from scorecardbundle.model_evaluation import ModelEvaluation as me
   ~~~
 
-### Usage
+#### Usage
 
 - Like Scikit-Learn, Scorecard-Bundle basiclly have two types of obejects, transforms and predictors. They comply with the fit-transform and fit-predict convention;
 - An usage example can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/Example_Basic_scorecard_modeling_with_Scorecard-Bundle.ipynb
 
 
 
-## User Guide
+### User Guide
 
-### Feature discretization
+#### Feature discretization
 
-### class: scorecardbundle.feature_discretization.ChiMerge.ChiMerge
+##### class: scorecardbundle.feature_discretization.ChiMerge.ChiMerge
 
 ChiMerge is a discretization algorithm introduced by Randy Kerber in "ChiMerge: Discretization of Numeric Attributes". It can transform a numerical features into categorical feature or reduce the number of intervals in a ordinal feature based on the feature's distribution and the target classes' relative frequencies in each interval. As a result, it keep statistically significantly different intervals and merge similar ones.
 
-##### Parameters
+###### Parameters
 
 ~~~mar
 m: integer, optional(default=2)
@@ -105,7 +112,7 @@ output_boundary: boolean, optional(default=False)
     [1,3,4].
 ~~~
 
-##### Attributes
+###### Attributes
 
 ~~~
 boundaries_: dict
@@ -120,7 +127,7 @@ columns_:  iterable
     An array of list of feature names.
 ~~~
 
-##### Methods
+###### Methods
 
 ~~~
 fit(X, y): 
@@ -133,13 +140,13 @@ fit_transform(X, y):
     fit the ChiMerge algorithm to the feature and transform it.    
 ~~~
 
-### Feature encoding
+#### Feature encoding
 
-#### class: scorecardbundle.feature_encoding.WOE.WOE_Encoder
+##### class: scorecardbundle.feature_encoding.WOE.WOE_Encoder
 
 Perform WOE transformation for features and calculate the information value (IV) of features with reference to the target variable y.
 
-##### Parameters
+###### Parameters
 ~~~
 epslon: float, optional(default=1e-10)
         Replace 0 with a very small number during division 
@@ -150,7 +157,7 @@ output_dataframe: boolean, optional(default=False)
         return pandas.DataFrame. If it is set to False, the output will
         be numpy ndarray.
 ~~~
-##### Attributes
+###### Attributes
 ~~~
 iv_: a dictionary that contains feature names and their IV
 
@@ -158,7 +165,7 @@ result_dict_: a dictionary that contains feature names and
     their WOE result tuple. Each WOE result tuple contains the
     woe value dictionary and the iv for the feature.
 ~~~
-##### Methods
+###### Methods
 ~~~
 fit(X, y): 
         fit the WOE transformation to the feature.
@@ -170,15 +177,15 @@ fit_transform(X, y):
         fit the WOE transformation to the feature and transform it.         
 ~~~
 
-### Feature selection
+#### Feature selection
 
-### Model training
+#### Model training
 
-#### class: scorecardbundle.model_training.LogisticRegressionScoreCard
+##### class: scorecardbundle.model_training.LogisticRegressionScoreCard
 
 Take woe-ed features, fit a regression and turn it into a scorecard
 
-##### Parameters
+###### Parameters
 ~~~
 woe_transformer: WOE transformer object from WOE module.
 
@@ -240,13 +247,13 @@ delimiter: string, optional(default='~')
     which takes the form lower+delimiter+upper. This parameter 
     is the symbol that connects the lower and upper boundaries.
 ~~~
-##### Attributes
+###### Attributes
 ~~~
 woe_df_: pandas.DataFrame, the scorecard.
 
 AB_ : A and B when converting regression to scorecard.
 ~~~
-##### Methods
+###### Methods
 ~~~
 fit(woed_X, y): 
         fit the Scorecard model.
@@ -267,49 +274,33 @@ predict(X_beforeWOE, load_scorecard=None):
         x1      -inf~20 1.629890    0.631033    -17.0
 ~~~
 
-### Model evaluation
+#### Model evaluation
 
-#### function: scorecardbundle.model_evaluation import ModelEvaluation
+##### class: scorecardbundle.model_evaluation.ModelEvaluation.BinaryTargets
 
+Model evaluation for binary classification problem.
 
+###### Parameters
+~~~
+y_true: numpy.array, shape (number of examples,)
+        The target column (or dependent variable).  
 
-## Update Log
+y_pred_proba: numpy.array, shape (number of examples,)
+        The score or probability output by the model. The probability
+        of y_true being 1 should increase as this value
+        increases.    
 
-### Updates in v0.5
-
-- ChiMerge:
-  - Rewrite everything with Numpy (basically no Pandas at all). Now no error would be raised during training, even with unbalanced samples where the old implementation usually crash.
-
-- WOE
-  - Rewrite everything with Numpy. The code efficiency is boosted due to matrix computation;
-  - The feature selection function is removed from WOE and will be included in an independent feature selection submodule;
-
-### Updates in v0.4
-
-- ChiMerge：
-  - When the distribution of a feature is heavily unbalanced (e.g. most values are the same), pandas.qcut will crash. Thus we will switch to pandas.cut durng the above circumstances.
-- ModelEvaluation:
-  - Fixed a bug in lift curve. WNow the codes can generalize better.
-
-- Scorecard
-  - Add predict_proba() function to return scores only
-  - Modify predict() and predict_proba() so that they support numpy array as input.
-
-### Updates in v0.3
-
-- ChiMerge
-  - Fix a bug in ChiMerge that caused errors when bining data with pandas.qcut. If there are too many decimals in the minimum value of the column (e.g. 10 decimals), this minimum value would become the left boundary of the smallest interval procuced by qcut. The problem is that all intervals produced by qcut  are open on the left and close on the right. This means the smallest interval will not contain this minimum value.  To fix this, just round the column with pands.Series.round() before applying qcut.
-  - Add a parameter `min_intervals`. When we don't want any feature droppped due to lack of predictability, we can use this parameter to make it happen.
-- Scorecard
-  - When using scorecard the data ranges may exceed those encountered in training, thus now the lowest and highest boundaries for each feature is set to negative infinity and positive infinity respectively.
-- ModelEvaluation
-  - If this module is run in jupyter notebook, the charts it saved to local used to be blank. This bug is fixed.
-
-### Updates in v0.2
-
-- Fix errors in notes. E.g. the default criterion for corr should be 0.6 rather than 0.7;
-- Add example of using sklearn.utils.class_weight;
-- Make Sure most default parameters  are optimal for Suitability scorecard model; 
+output_path: string, optional(default=None)
+        the location to save the plot, e.g. r'D:\\Work\\jupyter\\'.
+~~~
+###### Methods
+~~~
+ks_stat(): Return the k-s stat
+plot_ks(): Draw k-s curve
+plot_roc(): Draw ROC curve
+plot_precision_recall(): Draw precision recall curve
+plot_all(): Draw k-s, ROC curve, and precision recall curve
+~~~
 
 
 

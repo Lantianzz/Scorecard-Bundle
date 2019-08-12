@@ -264,7 +264,16 @@ class BinaryTargets():
             of y_true being 1 should increase as this value
             increases.    
     
-    output_path: the location to save the plot. Default is None.    
+    output_path: string, optional(default=None)
+            the location to save the plot, e.g. r'D:\\Work\\jupyter\\'.
+
+    Methods
+    -------
+    ks_stat(): Return the k-s stat
+    plot_ks(): Draw k-s curve
+    plot_roc(): Draw ROC curve
+    plot_precision_recall(): Draw precision recall curve
+    plot_all(): Draw k-s, ROC curve, and precision recall curve
     """   
     def __init__(self, y_true, y_pred_proba=None, y_pred=None, output_path=None):
 
@@ -301,14 +310,18 @@ class BinaryTargets():
         return ks_stat(self.__y_true__, self.__y_pred_proba__)
     
     def plot_ks(self):
-        return plot_ks(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+        return plot_ks(self.__y_true__, self.__y_pred_proba__, 
+                        output_path=self.__output_path__)
     
     def plot_roc(self):
-        return plot_roc(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+        return plot_roc(self.__y_true__, self.__y_pred_proba__, 
+                        output_path=self.__output_path__)
     
     def plot_precision_recall(self):
-        return plot_precision_recall(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+        return plot_precision_recall(self.__y_true__, self.__y_pred_proba__, 
+                        output_path=self.__output_path__)
     
     def plot_all(self):
-        return plot_all(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+        return plot_all(self.__y_true__, self.__y_pred_proba__, 
+                        output_path=self.__output_path__)
 
