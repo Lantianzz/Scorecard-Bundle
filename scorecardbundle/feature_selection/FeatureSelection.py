@@ -10,7 +10,8 @@ import pandas as pd
 import numpy as np
 
 def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
-    """Calculate WOE and IV for 1 feature
+    """Retrun a table of each feature' IV and their highly correlated
+    features to help users select features.
     Parameters
     ----------
     trans_woe: scorecardbundle.feature_encoding.WOE.WOE_Encoder object,
