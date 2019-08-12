@@ -145,8 +145,7 @@ def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
 # ============================================================
 
 class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
-    """Take woe-ed features, fit a regression and turn it into a scorecard
-    pandas0.23.4 should be installed.
+    """Take woe-ed features, fit a regression and turn it into a scorecard.
     
     Parameters
     ----------
@@ -215,6 +214,26 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     woe_df_: pandas.DataFrame, the scorecard.
     
     AB_ : A and B when converting regression to scorecard.
+
+    Methods
+    -------
+    fit(woed_X, y): 
+            fit the Scorecard model.
+
+    predict(X_beforeWOE, load_scorecard=None): 
+            Apply the model to the original feature 
+            (before discretization and woe encoding).
+            If user choose to upload their own Scorecard,
+            user can pass a pandas.DataFrame to `load_scorecard`
+            parameter. The dataframe should contain columns such as 
+            feature, value, woe, beta and score. An example would
+            be as followed (value is the range of feature values, woe 
+            is the WOE encoding of that range, and score is the socre
+            for that range):
+            feature value   woe         beta        score
+            x1      30~inf  0.377563    0.631033    5.0
+            x1      20~-30  1.351546    0.631033    37.0
+            x1      -inf~20 1.629890    0.631033    -17.0
     
     """     
     
