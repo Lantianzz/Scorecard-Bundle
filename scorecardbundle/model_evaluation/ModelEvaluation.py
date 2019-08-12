@@ -4,7 +4,7 @@ Created on Wed Dec 12 2018
 Updated on Sat Aug 11 2019
 @authors: Lantian ZHANG <zhanglantian1992@163.com>
 
-Model evaluation for binary classification problem.
+Model evaluation
 """
 
 import pandas as pd
@@ -32,8 +32,12 @@ font_title = {'family':'SimHei',
          'size':16,
         } # font for title
 
-# KS
 
+# ============================================================
+# Basic Functions
+# ============================================================
+
+# KS
 def ks_stat(y_true, y_pred_proba):
     """calculate the KS of a model
     Parameters
@@ -48,7 +52,6 @@ def ks_stat(y_true, y_pred_proba):
     """
     ks = scipy.stats.ks_2samp(y_pred_proba[y_true==1], y_pred_proba[y_true!=1]).statistic
     return ks
-
 def plot_ks(y_true, y_pred_proba, output_path=None):
     """Plot K-S curve of a model
     Parameters
@@ -247,3 +250,65 @@ def plot_all(y_true, y_pred_proba, output_path=None):
     plt.close()
     plot_precision_recall(target, scores, output_path=output_path)
     plt.close()
+
+class BinaryTargets():
+    """Model evaluation for binary classification problem.
+    
+    Parameters
+    ----------
+    y_true: numpy.array, shape (number of examples,)
+            The target column (or dependent variable).  
+    
+    y_pred_proba: numpy.array, shape (number of examples,)
+            The score or probability output by the model. The probability
+            of y_true being 1 should increase as this value
+            increases.    
+    
+    output_path: the location to save the plot. Default is None.    
+    """   
+    def __init__(self, y_true, y_pred_proba=None, y_pred=None, output_path=None):
+
+        self.__output_path__ = output_path
+
+        if isinstance(y_true, pd.Series):
+            self.__y_true__ = y_true.values
+        elif isinstance(y_true, np.ndarray):
+            self.__y_true__ = y_true
+        elif y_true is None:
+            self.__y_true__ = None
+        else:
+            raise TypeError('y_true should be either numpy.array or pandas.Series')
+
+        if isinstance(y_pred_proba, pd.Series):
+            self.__y_pred_proba__ = y_pred_proba.values
+        elif isinstance(y_pred_proba, np.ndarray):
+            self.__y_pred_proba__ = y_pred_proba
+        elif y_pred_proba is None:
+            self.__y_pred_proba__ = None
+        else:
+            raise TypeError('y_pred_proba should be either numpy.array or pandas.Series')
+
+        if isinstance(y_pred, pd.Series):
+            self.__y_pred__ = y_pred.values
+        elif isinstance(y_pred, np.ndarray):
+            self.__y_pred__ = y_pred
+        elif y_pred is None:
+            self.__y_pred__ = None
+        else:
+            raise TypeError('y_pred should be either numpy.array or pandas.Series')
+                                  
+    def ks_stat(self):
+        return ks_stat(self.__y_true__, self.__y_pred_proba__)
+    
+    def plot_ks(self):
+        return plot_ks(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+    
+    def plot_roc(self):
+        return plot_roc(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+    
+    def plot_precision_recall(self):
+        return plot_precision_recall(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+    
+    def plot_all(self):
+        return plot_all(self.__y_true__, self.__y_pred_proba__, output_path=self.__output_path__)
+

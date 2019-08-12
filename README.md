@@ -135,7 +135,7 @@ fit_transform(X, y):
 
 ### Feature encoding
 
-#### scorecardbundle.feature_encoding.WOE.WOE_Encoder
+#### class: scorecardbundle.feature_encoding.WOE.WOE_Encoder
 
 Perform WOE transformation for features and calculate the information value (IV) of features with reference to the target variable y.
 
@@ -174,7 +174,7 @@ fit_transform(X, y):
 
 ### Model training
 
-#### scorecardbundle.model_training.LogisticRegressionScoreCard
+#### class: scorecardbundle.model_training.LogisticRegressionScoreCard
 
 Take woe-ed features, fit a regression and turn it into a scorecard
 
@@ -268,6 +268,8 @@ predict(X_beforeWOE, load_scorecard=None):
 ~~~
 
 ### Model evaluation
+
+#### function: scorecardbundle.model_evaluation import ModelEvaluation
 
 
 
