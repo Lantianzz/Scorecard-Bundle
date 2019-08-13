@@ -17,8 +17,6 @@ setuptools.setup(
 	long_description=long_description,
 	long_description_content_type="text/markdown",
 	url="https://github.com/Lantianzz/Scorecard-Bundle",
-
-	packages=setuptools.find_packages(),
 	classifiers=[
 				"Development Status :: 4 - Beta",
 				"Intended Audience :: Data Analyst",
@@ -27,7 +25,7 @@ setuptools.setup(
 	    		"Programming Language :: Python :: 3"
 				],
 	keywords='Python Scorecard Modeling',
-	packages=find_packages(exclude=['TEMP']),
+	packages=find_packages(exclude=['TEMP','examples']),
 	python_requires='>=3.5',
 	install_requires=['numpy','scipy','pandas','matplotlib','sklearn'],
 )
