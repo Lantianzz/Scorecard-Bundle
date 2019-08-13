@@ -111,7 +111,7 @@ Scorecard-Bundle有三个阶段的开发计划：
 - 使用示例参见 https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%E7%A4%BA%E4%BE%8B_%E4%BD%BF%E7%94%A8Scorecard-Bundle%E8%BF%9B%E8%A1%8C%E5%9F%BA%E6%9C%AC%E7%9A%84%E8%AF%84%E5%88%86%E5%8D%A1%E5%BB%BA%E6%A8%A1.ipynb
 - 详细用法参见API Guide;
 
-## API  Guide
+## API Guide
 
 #### Feature discretization
 
