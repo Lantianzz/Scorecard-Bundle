@@ -25,6 +25,7 @@ There is a three-stage plan for Scorecard-Bundle:
 - Stage 1 (Have been covered in v1.0): Replicate all functions of convectional Scorecard modeling, including:
   - Feature discretization with Chi-Merge;
   - WOE transformation and IV calculation;
+  - Feature selection based on IV and Pearson Correlation Coefficient;
   - Scorecard modeling based on Logistic regression;
   - Model Evaluation (binary classification evaluation);
 - Stage 2 (Will be covered in v2.0): Add additional functionality, including:
