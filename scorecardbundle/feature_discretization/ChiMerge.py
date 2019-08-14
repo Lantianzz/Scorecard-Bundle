@@ -292,11 +292,14 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         boundaries = np.unique(x)
         intervals, unique_intervals = assign_interval_unique(x, boundaries)     
     # Return unique values as result if the # of unique x <= min_intervals
-    if n_i <= min_intervals: 
+    if n_i <= min_intervals and output_boundary is False: 
         intervals_str = np.array(
             [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
                                                             intervals[:,1])])
         return intervals_str
+    elif n_i <= min_intervals and output_boundary is True: 
+        boundaries = np.unique(x)
+        return boundaries
 
     # Merging step
 
