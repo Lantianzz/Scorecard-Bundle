@@ -11,7 +11,7 @@ convention. See detailed document at https://github.com/Lantianzz/Scorecard-Bund
 '''
 setuptools.setup(
 	name="scorecardbundle",
-	version="1.0.1",
+	version="1.0.2",
 	author="Lantian ZHANG",
 	author_email="zhanglantian1992@163.com",
 	description="The python scorecard modeling library",
