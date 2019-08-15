@@ -46,7 +46,7 @@ There is a three-stage plan for Scorecard-Bundle:
 
 ### Installment
 
-- Pip: Scorecard-Bundle can be installed with pip:  `pip install scorecardbundle` 
+- Pip: Scorecard-Bundle can be installed with pip:  `pip install --upgrade scorecardbundle` 
 
 - Manually: Down codes from github `<https://github.com/Lantianzz/Scorecard-Bundle>` and import them directly:
 
@@ -69,7 +69,7 @@ There is a three-stage plan for Scorecard-Bundle:
 
 #### V1.0.2
 
-- Fixed a bug in scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform(). The transform function did not run normally when the number of unique values in a feature is less then the parameter 'min_intervals'. This was due to an ill-considered if-else statement. This bug has been fixed in v1.0.2;
+- Fixed a bug in scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform(). In V1.0.1, The transform function did not run normally when the number of unique values in a feature is less then the parameter 'min_intervals'. This was due to an ill-considered if-else statement. This bug has been fixed in v1.0.2;
 
 ## 中文文档  (Chinese Document)
 
@@ -103,7 +103,7 @@ Scorecard-Bundle有三个阶段的开发计划：
 
 ### 安装
 
-- Pip: Scorecard-Bundle可使用pip安装:  `pip install scorecardbundle` 
+- Pip: Scorecard-Bundle可使用pip安装:  `pip install --upgrade scorecardbundle` 
 
 - 手动: 从Github下载代码`<https://github.com/Lantianzz/Scorecard-Bundle>`， 直接导入:
 
@@ -126,7 +126,7 @@ Scorecard-Bundle有三个阶段的开发计划：
 
 #### V1.0.2
 
-- 修复scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform()的一处bug。当一个特征唯一值的数量小于'min_intervals'参数时，transform函数无法正常运行，这是一处考虑不周的if-else判断语句造成的. 此bug已经在v1.0.2中修复;
+- 修复scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform()的一处bug。在V1.0.1中，当一个特征唯一值的数量小于'min_intervals'参数时，transform函数无法正常运行，这是一处考虑不周的if-else判断语句造成的. 此bug已经在v1.0.2中修复;
 
 ## API Guide
 
