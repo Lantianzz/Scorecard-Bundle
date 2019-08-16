@@ -395,7 +395,16 @@ y_true: numpy.array, shape (number of examples,)
 y_pred_proba: numpy.array, shape (number of examples,)
         The score or probability output by the model. The probability
         of y_true being 1 should increase as this value
-        increases.    
+        increases.   
+        
+        If Scorecard model's parameter "PDO" is negative, then the higher the 
+        model scores, the higher the probability of y_pred being 1. This Function
+        works fine. 
+
+        However!!! if the parameter "PDO" is positive, then the higher 
+        the model scores, the lower the probability of y_pred being 1. In this case,
+        just put a negative sign before the scores array and pass `-scores` as parameter
+        y_pred_proba of this function. 
 
 output_path: string, optional(default=None)
         the location to save the plot, e.g. r'D:\\Work\\jupyter\\'.
