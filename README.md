@@ -5,10 +5,14 @@ An High-level Scorecard Modeling API | 评分卡建模尽在于此
 - [English Document](#english-document)
   - [Installment](#installment)
   - [Usage](#usage)
+  - [Important Notice](#important-notice)
+  - [Updates Log](#updates-log)
 - [中文文档  (Chinese Document)](#中文文档--chinese-document)
   - [安装](#安装)
   - [使用](#使用)
-
+- [重要公告](#重要公告)
+  - [更新日志](#更新日志)
+  
 - [API Guide](#api-guide)
   - [Feature discretization](#feature-discretization)
   - [Feature encoding](#feature-encoding)
@@ -67,7 +71,7 @@ There is a three-stage plan for Scorecard-Bundle:
 
 ### Important Notice
 
-- [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( (the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). The next release will add proper error message for this. 
+- [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( (the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). The next release will add proper error message for this rare error. 
 
 ### Updates Log
 
@@ -128,7 +132,7 @@ Scorecard-Bundle有三个阶段的开发计划：
 
 ### 重要公告
 
-- [Future Fix] WOE和ChiMerge模块的几处代码（例如WOE模块的woe_vector函数）中，利用向量外积获得两个向量间的boolean mask矩阵，当输入的特征具有较多的唯一值时，可能会导致计算此外积的时候内存溢出（e.g. 样本量35万、唯一值1万个的特征，已在8G内存的电脑上计算WOE会内存溢出），此时的报错信息未必是内存溢出，给用户debug造成困难（当前的报错信息可能是`TypeError: 'bool' object is not iterable`或`DeprecationWarning:  elementwise comparison failed`），在下一版本中会考虑增加详细的报错信息提示；
+- [Future Fix] WOE和ChiMerge模块的几处代码（例如WOE模块的woe_vector函数）中，利用向量外积获得两个向量间的boolean mask矩阵，当输入的特征具有较多的唯一值时，可能会导致计算此外积的时候内存溢出（e.g. 样本量35万、唯一值1万个的特征，已在8G内存的电脑上计算WOE会内存溢出），此时的报错信息未必是内存溢出，给用户debug造成困难（当前的报错信息可能是`TypeError: 'bool' object is not iterable`或`DeprecationWarning:  elementwise comparison failed`），在下一版本中会为此罕见的error增加详细的报错信息提示；
 
 ### 更新日志
 
