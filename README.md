@@ -65,6 +65,10 @@ There is a three-stage plan for Scorecard-Bundle:
 - An usage example can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/Example_Basic_scorecard_modeling_with_Scorecard-Bundle.ipynb
 - See more details in API Guide;
 
+### Important Notice
+
+- [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( (the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). The next release will add proper error message for this. 
+
 ### Updates Log
 
 #### V1.0.2
@@ -122,11 +126,15 @@ Scorecard-Bundle有三个阶段的开发计划：
 - 使用示例参见 https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%E7%A4%BA%E4%BE%8B_%E4%BD%BF%E7%94%A8Scorecard-Bundle%E8%BF%9B%E8%A1%8C%E5%9F%BA%E6%9C%AC%E7%9A%84%E8%AF%84%E5%88%86%E5%8D%A1%E5%BB%BA%E6%A8%A1.ipynb
 - 详细用法参见API Guide;
 
+### 重要公告
+
+- [Future Fix] WOE和ChiMerge模块的几处代码（例如WOE模块的woe_vector函数）中，利用向量外积获得两个向量间的boolean mask矩阵，当输入的特征具有较多的唯一值时，可能会导致计算此外积的时候内存溢出（e.g. 样本量35万、唯一值1万个的特征，已在8G内存的电脑上计算WOE会内存溢出），此时的报错信息未必是内存溢出，给用户debug造成困难（当前的报错信息可能是`TypeError: 'bool' object is not iterable`或`DeprecationWarning:  elementwise comparison failed`），在下一版本中会考虑增加详细的报错信息提示；
+
 ### 更新日志
 
 #### V1.0.2
 
-- 修复scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform()的一处bug。在V1.0.1中，当一个特征唯一值的数量小于'min_intervals'参数时，transform函数无法正常运行，这是一处考虑不周的if-else判断语句造成的. 此bug已经在v1.0.2中修复;
+- [Fix] 修复scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform()的一处bug。在V1.0.1中，当一个特征唯一值的数量小于'min_intervals'参数时，transform函数无法正常运行，这是一处考虑不周的if-else判断语句造成的. 此bug已经在v1.0.2中修复;
 
 ## API Guide
 
