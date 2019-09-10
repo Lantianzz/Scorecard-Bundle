@@ -8,11 +8,12 @@ An High-level Scorecard Modeling API | 评分卡建模尽在于此
   - [Important Notice](#important-notice)
   - [Updates Log](#updates-log)
 - [中文文档  (Chinese Document)](#中文文档--chinese-document)
+  
   - [安装](#安装)
   - [使用](#使用)
-- [重要公告](#重要公告)
-  - [更新日志](#更新日志)
+  - [重要公告](#重要公告)
   
+  - [更新日志](#更新日志)
 - [API Guide](#api-guide)
   - [Feature discretization](#feature-discretization)
   - [Feature encoding](#feature-encoding)
