@@ -42,6 +42,7 @@ def _assign_interval_base(x, boundaries):
         left and right boundary respectively.
     """    
     # Add -inf and inf to the start and end of boundaries
+    max_value = max(boundaries)
     boundaries = np.unique(
         np.concatenate((np.array([-float('inf')]),
                         boundaries,np.array([float('inf')])), 
@@ -50,8 +51,13 @@ def _assign_interval_base(x, boundaries):
     # The min boundary that is >= than x_i is its upper boundary. 
     # Adding equal is because all intervals here are closed to the right.
     boundaries_diff_boolean = x.reshape(1,-1).T > boundaries.reshape(1,-1) 
-    lowers = [boundaries[b].max() for b in boundaries_diff_boolean] 
-    uppers = [boundaries[b].min() for b in ~boundaries_diff_boolean] 
+    lowers = np.array([boundaries[b].max() for b in boundaries_diff_boolean])
+    uppers = np.array([boundaries[b].min() for b in ~boundaries_diff_boolean])
+    
+    # Replace the upper value with inf if the value equals the maximum feature value
+    n = x.shape[0]
+    uppers = np.where(uppers==max_value,[float('inf')]*n,uppers) 
+    
     # Array of intervals that are closed to the right
     intervals= np.stack((lowers, uppers), axis=1) 
     return intervals
@@ -243,9 +249,9 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         Sometimes (like when training a scorecard model) fewer intervals are 
         prefered. If do not need this option just set it to None.
 
-    min_intervals: int, optional(default=None)
+    min_intervals: int, optional(default=1)
         Specify the mininum number of intervals the discretized array will have.
-        If do not need this option just set it to None.
+        If do not need this option just set it to 1.
 
     initial_intervals: int, optional(default=100)
         The original Chimerge algorithm starts by putting each unique value 
@@ -298,7 +304,14 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
                                                             intervals[:,1])])
         return intervals_str
     elif n_i <= min_intervals and output_boundary is True: 
-        boundaries = np.unique(x)
+        if len(np.unique(x))>1:
+            boundaries = np.unique(
+                np.concatenate((np.unique(x),
+                                np.array([float('inf')])), 
+                                axis=0))
+        else:
+            boundaries = np.array([float('inf')])
+    
         return boundaries
 
     # Merging step
@@ -386,9 +399,9 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         Sometimes (like when training a scorecard model) fewer intervals are 
         prefered. If do not need this option just set it to None.
 
-    min_intervals: int, optional(default=None)
+    min_intervals: int, optional(default=1)
         Specify the mininum number of intervals the discretized array will have.
-        If do not need this option just set it to None.
+        If do not need this option just set it to 1.
 
     initial_intervals: int, optional(default=100)
         The original Chimerge algorithm starts by putting each unique value 
@@ -439,7 +452,7 @@ class ChiMerge(BaseEstimator, TransformerMixin):
     """
    
     def __init__(self, m=2, confidence_level=0.9, max_intervals=None, 
-                    min_intervals=0, initial_intervals=100, 
+                    min_intervals=1, initial_intervals=100, 
                     delimiter='~', output_dataframe=False):
         self.__m__ = m
         self.__confidence_level__ = confidence_level
@@ -526,6 +539,3 @@ class ChiMerge(BaseEstimator, TransformerMixin):
             return pd.DataFrame(result, index=self.columns_).T
         else:
             return result.T
-
-
-

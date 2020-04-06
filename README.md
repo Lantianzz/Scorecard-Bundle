@@ -40,7 +40,6 @@ There is a three-stage plan for Scorecard-Bundle:
   - Model scores discretization (if ratings are required);
   - Model Rating Evaluation (clustering quality evaluation);
   - Add discretization methods other than ChiMerge;
-  - Add support for Scorecard based on algorithms other than Logistic Regression;
 - Stage 3 (Will be covered in v3.0): Automate the modeling process, including:
   - Automatically select proper discretization methods for different features;
   - Automatically perform hyper-parameter tuning for LR-based Scorecard;
@@ -80,6 +79,11 @@ There is a three-stage plan for Scorecard-Bundle:
 
 - Fixed a bug in scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform(). In V1.0.1, The transform function did not run normally when the number of unique values in a feature is less then the parameter 'min_intervals'. This was due to an ill-considered if-else statement. This bug has been fixed in v1.0.2;
 
+#### V1.1.0 (Updated on Master branch,  haven't uploaded to PyPI）
+
+- [Fix] Fixed a bug in `scorecardbundle.feature_discretization.ChiMerge.ChiMerge` to ensure the output discretized feature values are continous intervals from negative infinity to infinity, covering all possible values. This was done by modifying  `_assign_interval_base` function and `chi_merge_vector` function;
+- [Fix] Changed the default value of `min_intervals` parameter in `scorecardbundle.feature_discretization.ChiMerge.ChiMerge` from None to 1 so that in case of encountering features with only one unique value would not cause an error. Setting the default value to 1 is actually more consistent to the actual meaning, as there is at least one interval in a feature. 
+
 ## 中文文档  (Chinese Document)
 
 ### 简介
@@ -100,8 +104,7 @@ Scorecard-Bundle有三个阶段的开发计划：
   - 模型评分的离散化（如果需要评级）；
   - 模型评级的评估（聚类质量评价指标）；
   - 增加除Chi-Merge外的其他特征离散化算法；
-  - 增加评分卡对除逻辑回归外的其他算法的支持。
-
+  
 - 阶段3 （将在v3.0中完成）：建模过程自动化，包括：
   - 自动为不同特征选择合适的离散化算法；
   - 自动为基于逻辑回归的评分卡调优超参数；
@@ -141,6 +144,16 @@ Scorecard-Bundle有三个阶段的开发计划：
 
 - [Fix] 修复scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform()的一处bug。在V1.0.1中，当一个特征唯一值的数量小于'min_intervals'参数时，transform函数无法正常运行，这是一处考虑不周的if-else判断语句造成的. 此bug已经在v1.0.2中修复;
 
+#### V1.1.0 (Master分支代码已更新，尚未上传PyPI）
+
+- [Fix]修正scorecardbundle.feature_discretization.ChiMerge.ChiMerge，使得任意情况下输出的取值区间都是负无穷到正无穷的连续区间（通过修改_assign_interval_base和chi_merge_vector实现）；
+
+- [Fix] 将scorecardbundle.feature_discretization.ChiMerge.ChiMerge中的min_intervals默认值由None改为1，更符合实际情况（实际至少能有一个区间），当遇到特征的唯一值仅有一个的极端情况时也能直接输出此类特征的原值；
+
+  
+
+
+
 ## API Guide
 
 #### Feature discretization
@@ -164,9 +177,9 @@ max_intervals: int, optional(default=None)
     Sometimes (like when training a scorecard model) fewer intervals are 
     prefered. If do not need this option just set it to None.
 
-min_intervals: int, optional(default=None)
+min_intervals: int, optional(default=1)
     Specify the mininum number of intervals the discretized array will have.
-    If do not need this option just set it to None.
+    If do not need this option just set it to 1.
 
 initial_intervals: int, optional(default=100)
     The original Chimerge algorithm starts by putting each unique value 
