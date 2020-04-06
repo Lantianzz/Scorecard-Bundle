@@ -73,6 +73,9 @@ There is a three-stage plan for Scorecard-Bundle:
 
 - [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). The next release will add proper error message for this rare error. 
 
+- [Future Fix] songshijun007 brought up an issue about the raise of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been resolved and the modified `ChiMerge.py` has been pushed to Master branch.  Therefore, to avoid this bug, please replace your local ChiMerge.py` with the one on Master branch now, or see the issue and replace the `_assign_interval_base` function and `chi_merge_vector` function in `scorecardbundle.feature_discretization.ChiMerge` with the following version to fix this problem (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
+
+
 ### Updates Log
 
 #### V1.0.2
@@ -137,6 +140,7 @@ Scorecard-Bundle有三个阶段的开发计划：
 ### 重要公告
 
 - [Future Fix] WOE和ChiMerge模块的几处代码（例如WOE模块的woe_vector函数）中，利用向量外积获得两个向量间的boolean mask矩阵，当输入的特征具有较多的唯一值时，可能会导致计算此外积的时候内存溢出（e.g. 样本量35万、唯一值1万个的特征，已在8G内存的电脑上计算WOE会内存溢出），此时的报错信息未必是内存溢出，给用户debug造成困难（当前的报错信息可能是`TypeError: 'bool' object is not iterable`或`DeprecationWarning:  elementwise comparison failed`），在下一版本中会为此罕见的error增加详细的报错信息提示；
+- [Future Fix] songshijun007 在issue中提到当测试集存在比训练集更大的特征值时会造成KeyError。这处bug已被解决，调整后的 `ChiMerge.py` 已经合并到Master分支。因此，为了修复此bug，可用Master分支上的 `ChiMerge.py` 覆盖本地同名文件，或参考issue中的回复，将`_assign_interval_base` and `chi_merge_vector` 函数用回复中的修复版本替换（issue链接https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 ### 更新日志
 
