@@ -42,7 +42,7 @@ def _assign_interval_base(x, boundaries):
         left and right boundary respectively.
     """    
     # Add -inf and inf to the start and end of boundaries
-    max_value = max(boundaries)
+    max_value = max(x)
     boundaries = np.unique(
         np.concatenate((np.array([-float('inf')]),
                         boundaries,np.array([float('inf')])), 
@@ -57,7 +57,6 @@ def _assign_interval_base(x, boundaries):
     # Replace the upper value with inf if the value equals the maximum feature value
     n = x.shape[0]
     uppers = np.where(uppers==max_value,[float('inf')]*n,uppers) 
-    
     # Array of intervals that are closed to the right
     intervals= np.stack((lowers, uppers), axis=1) 
     return intervals
@@ -223,7 +222,7 @@ def interval_to_boundary_vector(vector, delimiter='~'):
 # Main Part
 # ============================================================
 def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None, 
-                     min_intervals=0, initial_intervals=100, 
+                     min_intervals=1, initial_intervals=100, 
                      delimiter='~', output_boundary=False):
     """Merge similar adjacent m intervals until all adjacent 
     intervals are significantly different from each other.
