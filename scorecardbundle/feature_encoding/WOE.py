@@ -3,7 +3,7 @@
 Created on Mon Dec 3 2018
 Updated on Sat Aug 10 2019
 
-@authors: Lantian ZHANG <zhanglantian1992@163.com>
+@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
 
 The codes below perform WOE transformation and IV calculation for features 
 The data format of features should be string or number.

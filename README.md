@@ -8,7 +8,6 @@ An High-level Scorecard Modeling API | 评分卡建模尽在于此
   - [Important Notice](#important-notice)
   - [Updates Log](#updates-log)
 - [中文文档  (Chinese Document)](#中文文档--chinese-document)
-  
   - [安装](#安装)
   - [使用](#使用)
   - [重要公告](#重要公告)
@@ -72,20 +71,21 @@ There is a three-stage plan for Scorecard-Bundle:
 ### Important Notice
 
 - [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). The next release will add proper error message for this rare error. 
-
-- [Future Fix] songshijun007 brought up an issue about the raise of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been resolved, the modified `ChiMerge.py` has been pushed to Master branch, and will be included in the next release on PyPI.  For now, to avoid this bug, please replace your local ChiMerge.py` with the one on Master branch now, or see the issue and replace the `_assign_interval_base` function and `chi_merge_vector` function in `scorecardbundle.feature_discretization.ChiMerge` with the following version to fix this problem (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
+- [Fix] When using V1.0.2, songshijun007 brought up an issue about the raise of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been resolved and added to V1.1.0.  (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 
 ### Updates Log
+
+#### V1.1.0
+
+- [Fix] Fixed a bug in `scorecardbundle.feature_discretization.ChiMerge.ChiMerge` to ensure the output discretized feature values are continous intervals from negative infinity to infinity, covering all possible values. This was done by modifying  `_assign_interval_base` function and `chi_merge_vector` function;
+- [Fix] Changed the default value of `min_intervals` parameter in `scorecardbundle.feature_discretization.ChiMerge.ChiMerge` from None to 1 so that in case of encountering features with only one unique value would not cause an error. Setting the default value to 1 is actually more consistent to the actual meaning, as there is at least one interval in a feature;
+- [Add] Add `scorecardbundle.feature_discretization.FeatureIntervalAdjustment` class to cover the functionality related to manually adjusting features in feature engineering stage. Now this class only contains `plot_event_dist` function, which can visualize a feature's sample distribution and event rate distribution. This is to facilate feature adjustment decisions in order to obtain better explainability and predictabiltiy;
 
 #### V1.0.2
 
 - Fixed a bug in scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform(). In V1.0.1, The transform function did not run normally when the number of unique values in a feature is less then the parameter 'min_intervals'. This was due to an ill-considered if-else statement. This bug has been fixed in v1.0.2;
 
-#### V1.1.0 (Updated on Master branch,  haven't uploaded to PyPI）
-
-- [Fix] Fixed a bug in `scorecardbundle.feature_discretization.ChiMerge.ChiMerge` to ensure the output discretized feature values are continous intervals from negative infinity to infinity, covering all possible values. This was done by modifying  `_assign_interval_base` function and `chi_merge_vector` function;
-- [Fix] Changed the default value of `min_intervals` parameter in `scorecardbundle.feature_discretization.ChiMerge.ChiMerge` from None to 1 so that in case of encountering features with only one unique value would not cause an error. Setting the default value to 1 is actually more consistent to the actual meaning, as there is at least one interval in a feature. 
 
 ## 中文文档  (Chinese Document)
 
@@ -140,21 +140,23 @@ Scorecard-Bundle有三个阶段的开发计划：
 ### 重要公告
 
 - [Future Fix] WOE和ChiMerge模块的几处代码（例如WOE模块的woe_vector函数）中，利用向量外积获得两个向量间的boolean mask矩阵，当输入的特征具有较多的唯一值时，可能会导致计算此外积的时候内存溢出（e.g. 样本量35万、唯一值1万个的特征，已在8G内存的电脑上计算WOE会内存溢出），此时的报错信息未必是内存溢出，给用户debug造成困难（当前的报错信息可能是`TypeError: 'bool' object is not iterable`或`DeprecationWarning:  elementwise comparison failed`），在下一版本中会为此罕见的error增加详细的报错信息提示；
-- [Future Fix] songshijun007 在issue中提到当测试集存在比训练集更大的特征值时会造成KeyError。这处bug已被解决，调整后的 `ChiMerge.py` 已经合并到Master分支，将添加到下一次发布在PyPI的版本中。目前，为了修复此bug，可用Master分支上的 `ChiMerge.py` 覆盖本地同名文件，或参考issue中的回复，将`_assign_interval_base` and `chi_merge_vector` 函数用回复中的修复版本替换（issue链接https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
+- [Fix] 在使用V1.0.2版本时，songshijun007 在issue中提到当测试集存在比训练集更大的特征值时会造成KeyError。这处bug已被解决，已添加到V1.1.0版本中（issue链接https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 ### 更新日志
+
+#### V1.1.0 
+
+- [Fix]修正scorecardbundle.feature_discretization.ChiMerge.ChiMerge，使得任意情况下输出的取值区间都是负无穷到正无穷的连续区间（通过修改_assign_interval_base和chi_merge_vector实现）；
+- [Fix] 将scorecardbundle.feature_discretization.ChiMerge.ChiMerge中的min_intervals默认值由None改为1，更符合实际情况（实际至少能有一个区间），当遇到特征的唯一值仅有一个的极端情况时也能直接输出此类特征的原值；
+- [Add] 增加scorecardbundle.feature_discretization.FeatureIntervalAdjustment类，覆盖了特征工程阶段手动调整特征相关的功能，目前实现了`plot_event_dist`函数，可实现样本分布和响应率分布的可视化，方便对特征进行调整，已获得更好的可解释性和预测力；
+
 
 #### V1.0.2
 
 - [Fix] 修复scorecardbundle.feature_discretization.ChiMerge.ChiMerge.transform()的一处bug。在V1.0.1中，当一个特征唯一值的数量小于'min_intervals'参数时，transform函数无法正常运行，这是一处考虑不周的if-else判断语句造成的. 此bug已经在v1.0.2中修复;
 
-#### V1.1.0 (Master分支代码已更新，尚未上传PyPI）
 
-- [Fix]修正scorecardbundle.feature_discretization.ChiMerge.ChiMerge，使得任意情况下输出的取值区间都是负无穷到正无穷的连续区间（通过修改_assign_interval_base和chi_merge_vector实现）；
 
-- [Fix] 将scorecardbundle.feature_discretization.ChiMerge.ChiMerge中的min_intervals默认值由None改为1，更符合实际情况（实际至少能有一个区间），当遇到特征的唯一值仅有一个的极端情况时也能直接输出此类特征的原值；
-
-  
 
 
 
@@ -236,6 +238,64 @@ transform(X):
 fit_transform(X, y): 
     fit the ChiMerge algorithm to the feature and transform it.    
 ```
+
+##### function:  scorecardbundle.feature_discretization.FeatureIntervalAdjustment.plot_event_dist
+
+Visualizing feature event rate distribution to facilitate explainability evaluation.
+
+###### Parameters
+
+~~~
+x:numpy.ndarray or pandas.DataFrame, shape (number of examples,)
+    The feature to be visualized.
+
+y:numpy.ndarray or pandas.DataFrame, shape (number of examples,)
+    The Dependent variable.
+
+delimiter: string, optional(default='~')
+    The interval is representated by string (i.e. '1~2'), 
+    which takes the form lower+delimiter+upper. This parameter 
+    control the symbol that connects the lower and upper boundaries.   
+
+title: Python string. Optional.
+    The title of the plot. Default is ''.
+
+x_label: Python string. Optional.
+    The label of the feature. Default is ''.
+
+y_label: Python string. Optional.
+    The label of the dependent variable. Default is ''.
+
+x_rotation: int. Optional.
+    The degree of rotation of x-axis ticks. Default is 0.
+
+xticks: Python list of strings. Optional.
+    The tick labels on x-axis. Default is the unique values
+    of x (in the format of Python string).
+
+figure_height: int. Optional.
+    The hight of the figure. Default is 4.
+
+figure_width: int. Optional.
+    The width of the figure. Default is 6.
+
+save: boolean. Optional.
+    Whether or not the figure is saved to a local positon.
+    Default is False.
+
+path: Python string. Optional.
+    The local position path where the figure will be saved.
+    This should be set when parameter save is True. Default is ''.
+~~~
+
+###### Return
+
+~~~
+f1_ax1: matplotlib.axes._subplots.AxesSubplot
+        The figure object is returned.
+~~~
+
+
 
 #### Feature encoding
 

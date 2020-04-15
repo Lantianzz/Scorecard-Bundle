@@ -3,7 +3,7 @@
 Created on Mon Aug 12 2019
 Updated on Mon Aug 12 2019
 
-@authors: Lantian ZHANG <zhanglantian1992@163.com>
+@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
 
 """
 import pandas as pd

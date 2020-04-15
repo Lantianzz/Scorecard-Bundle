@@ -11,9 +11,9 @@ convention. See detailed document at https://github.com/Lantianzz/Scorecard-Bund
 '''
 setuptools.setup(
 	name="scorecardbundle",
-	version="1.0.2",
+	version="1.1.0",
 	author="Lantian ZHANG",
-	author_email="zhanglantian1992@163.com",
+	author_email="peter.lantian.zhang@outlook.com",
 	description="The python scorecard modeling library",
 	long_description=long_description,
 	long_description_content_type="text/markdown",
@@ -25,7 +25,7 @@ setuptools.setup(
 	    		"Programming Language :: Python :: 3"],
 	keywords='Python Scorecard Modeling',
 	packages=setuptools.find_packages(exclude=['TEMP','examples']),
-	python_requires='>=3.5',
+	python_requires='>=3.7',
 	install_requires=['numpy','scipy','pandas','matplotlib','sklearn'],
 )
 

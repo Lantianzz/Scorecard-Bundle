@@ -3,7 +3,7 @@
 Created on Thu Nov 1 2018
 Updated on Sat Aug 10 2019
 
-@authors: Lantian ZHANG <zhanglantian1992@163.com>
+@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
 
 ChiMerge is a discretization algorithm introduced by Randy Kerber in 
 "ChiMerge: Discretization of Numeric Attributes". It can transform 

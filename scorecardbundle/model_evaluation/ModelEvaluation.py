@@ -2,7 +2,7 @@
 """
 Created on Wed Dec 12 2018
 Updated on Sat Aug 11 2019
-@authors: Lantian ZHANG <zhanglantian1992@163.com>
+@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
 
 Model evaluation
 """

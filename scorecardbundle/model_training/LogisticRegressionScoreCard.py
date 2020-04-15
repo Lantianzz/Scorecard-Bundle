@@ -3,7 +3,7 @@
 Created on Sun Dec  9  12:03:43 2018
 Updated on Thu Dec  13 15:35:00 2018
 
-@author: zhanglt
+@author: Lantian ZHANG <peter.lantian.zhang@outlook.com>
 
 Python module for standard scorecard modeling 
 """

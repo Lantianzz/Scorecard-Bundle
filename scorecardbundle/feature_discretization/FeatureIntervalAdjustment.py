@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Nov 1 2018
-Updated on Sat Aug 10 2019
+Updated on Sat Mar 31 2020
 
 @authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
 
@@ -42,8 +42,8 @@ formatter_thousands = FuncFormatter(format_thousands)
 # Visualization
 # ============================================================
 
-def plot_event_dist(x, y, title='', 
-                x_label='', y_label='', 
+def plot_event_dist(x, y, delimiter='~',
+                title='', x_label='', y_label='', 
                 x_rotation=0, xticks=None, 
                 figure_height=4, figure_width=6, 
                 save=False, path=''):
@@ -57,7 +57,12 @@ def plot_event_dist(x, y, title='',
     
     y:numpy.ndarray or pandas.DataFrame, shape (number of examples,)
         The Dependent variable.
-    
+
+    delimiter: string, optional(default='~')
+        The interval is representated by string (i.e. '1~2'), 
+        which takes the form lower+delimiter+upper. This parameter 
+        control the symbol that connects the lower and upper boundaries.   
+
     title: Python string. Optional.
         The title of the plot. Default is ''.
     
@@ -112,15 +117,17 @@ def plot_event_dist(x, y, title='',
         'x':x,
         'y':y
         })
-
-    event = data.groupby('x')['y'].sum()
-    freq = data.groupby('x')['y'].size()
+    ' -inf~34.49'.split('~')[-1]
+    data['x_b'] = [float(e.split('~')[-1]) if e.split('~')[-1] not in ('inf','-inf') else (float('inf') if e.split('~')[-1]=='inf' else -float('inf')) for e in data.x]
+    map_xticks = data[['x','x_b']].drop_duplicates().sort_values('x_b')
+    event = data.groupby('x_b')['y'].sum()
+    freq = data.groupby('x_b')['y'].size()
     plot_data = event/freq 
     plot_x = np.arange(len(plot_data))
     plot_y = plot_data.values
 
     if xticks is None:
-        plot_x_labels = plot_data.index.astype(str)
+        plot_x_labels = map_xticks['x']
     else:
         plot_x_labels = xticks
 
@@ -145,7 +152,7 @@ def plot_event_dist(x, y, title='',
         plt.savefig(path+x_label+y_label+'.png',dpi=500,bbox_inches='tight')
 
     res = event.reset_index().rename(columns={'y':'event_freq'})
-    res['sample_size'] = data.groupby('x')['y'].size().values
-    res['event_rate'] = res['event_freq']/res['sample_size']
+    res['sample_size'] = freq.values
+    res['event_rate'] = plot_data.values
     print(res)
     return f1_ax1
