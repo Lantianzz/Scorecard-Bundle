@@ -57,7 +57,9 @@ There is a three-stage plan for Scorecard-Bundle:
   import sys
   sys.path.append('E:\Github\Scorecard-Bundle') # add path that contains the codes
   from scorecardbundle.feature_discretization import ChiMerge as cm
+  from scorecardbundle.feature_discretization import FeatureIntervalAdjustment as fia
   from scorecardbundle.feature_encoding import WOE as woe
+  from scorecardbundle.feature_selection import FeatureSelection as fs
   from scorecardbundle.model_training import LogisticRegressionScoreCard as lrsc
   from scorecardbundle.model_evaluation import ModelEvaluation as me
   ~~~
@@ -126,7 +128,9 @@ Scorecard-Bundle有三个阶段的开发计划：
   import sys
   sys.path.append('E:\Github\Scorecard-Bundle') # add path that contains the codes
   from scorecardbundle.feature_discretization import ChiMerge as cm
+  from scorecardbundle.feature_discretization import FeatureIntervalAdjustment as fia
   from scorecardbundle.feature_encoding import WOE as woe
+  from scorecardbundle.feature_selection import FeatureSelection as fs
   from scorecardbundle.model_training import LogisticRegressionScoreCard as lrsc
   from scorecardbundle.model_evaluation import ModelEvaluation as me
   ```
