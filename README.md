@@ -26,27 +26,6 @@ An High-level Scorecard Modeling API | 评分卡建模尽在于此
 
 Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use and **Scikit-Learn consistent**. The transformer and model classes in Scorecard-Bundle comply with Scikit-Learn‘s fit-transform-predict convention.
 
-There is a three-stage plan for Scorecard-Bundle:
-
-- Stage 1 (Have been covered in v1.0.2): Replicate all functions of convectional Scorecard modeling, including:
-  - Feature discretization with Chi-Merge;
-  - WOE transformation and IV calculation;
-  - Feature selection based on IV and Pearson Correlation Coefficient;
-  - Scorecard modeling based on Logistic regression;
-  - Model Evaluation (binary classification evaluation);
-- Stage 2 (Will be covered in v2.0): Add additional functionality, including:
-  - Feature selection criteria (predictability + co-linearity + explainability);
-  - Model scores discretization (if ratings are required);
-  - Model Rating Evaluation (clustering quality evaluation);
-  - Add discretization methods other than ChiMerge;
-- Stage 3 (Will be covered in v3.0): Automate the modeling process, including:
-  - Automatically select proper discretization methods for different features;
-  - Automatically perform hyper-parameter tuning for LR-based Scorecard;
-  - Automatically perform feature selection with consideration of predictability, co-linearity and explainability;
-  - Provide an model pipeline that takes the input features, perform all the tasks (discretization, woe, etc.) inside it and return the scored samples and Scorecard rules. This simplify the modeling process to one line of code `model.fit_predict(X, y)`;
-
-<img src="https://github.com/Lantianzz/ScorecardBundle/blob/master/pics/framework.svg">
-
 ### Installment
 
 - Pip: Scorecard-Bundle can be installed with pip:  `pip install --upgrade scorecardbundle` 
@@ -67,7 +46,8 @@ There is a three-stage plan for Scorecard-Bundle:
 ### Usage
 
 - Like Scikit-Learn, Scorecard-Bundle basiclly have two types of obejects, transforms and predictors. They comply with the fit-transform and fit-predict convention;
-- An usage example can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/Example_Basic_scorecard_modeling_with_Scorecard-Bundle.ipynb
+- An sample usage example can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Basic%20scorecard%20modeling%20with%20Scorecard-Bundle.ipynb
+- An Advanced example showing how to build a scorecard with high explainability and good predictability with Scorecard-Bundle can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Build%20a%20scorecard%20with%20high%20explainability%20and%20good%20predictability%20with%20Scorecard-Bundle.ipynb
 - See more details in API Guide;
 
 ### Important Notice
@@ -95,29 +75,6 @@ There is a three-stage plan for Scorecard-Bundle:
 
 Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便且符合Scikit-Learn的调用习惯，包含的类均遵守Scikit-Learn的fit-transform-predict习惯。
 
-Scorecard-Bundle有三个阶段的开发计划：
-
-- 阶段一 （已在v1.0.2中完成）：实现传统评分卡建模所的主要功能，包括：
-  - 基于卡方分箱（Chi-Merge）的特征离散化；
-  - WOE编码和IV计算；
-  - 基于IV和皮尔森相关系数的特征筛选；
-  - 基于逻辑回归的评分卡模型训练；
-  - 模型评估（二元分类问题）。
-
-- 阶段二（将在v2.0中完成）：补充更多功能，包括：
-  - 全面的特征筛选指标（预测力+共线性+可解释性）；
-  - 模型评分的离散化（如果需要评级）；
-  - 模型评级的评估（聚类质量评价指标）；
-  - 增加除Chi-Merge外的其他特征离散化算法；
-  
-- 阶段3 （将在v3.0中完成）：建模过程自动化，包括：
-  - 自动为不同特征选择合适的离散化算法；
-  - 自动为基于逻辑回归的评分卡调优超参数；
-  - 根据特征预测力、共线性和可解释性评价指标，自动实施特征筛选；
-  - 将建模流程组装成pipeline，使离散化、编码等任务在内部运行，pipeline直接返回评分结果和评分规则。这将模型训练过程简化为一行代码`model.fit_predict(X, y)`。
-
-<img src="https://github.com/Lantianzz/ScorecardBundle/blob/master/pics/framework.svg">
-
 ### 安装
 
 - Pip: Scorecard-Bundle可使用pip安装:  `pip install --upgrade scorecardbundle` 
@@ -139,6 +96,7 @@ Scorecard-Bundle有三个阶段的开发计划：
 
 - 与Scikit-Learn相似，Scorecard-Bundle有两种class，transformer和predictor，分别遵守fit-transform和fit-predict习惯；
 - 使用示例参见 https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%E7%A4%BA%E4%BE%8B_%E4%BD%BF%E7%94%A8Scorecard-Bundle%E8%BF%9B%E8%A1%8C%E5%9F%BA%E6%9C%AC%E7%9A%84%E8%AF%84%E5%88%86%E5%8D%A1%E5%BB%BA%E6%A8%A1.ipynb
+- 展示如何训练可解释性和预测力俱佳的评分卡的高级示例 https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Build%20a%20scorecard%20with%20high%20explainability%20and%20good%20predictability%20with%20Scorecard-Bundle.ipynb
 - 详细用法参见API Guide;
 
 ### 重要公告
