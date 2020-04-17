@@ -294,9 +294,9 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
             raise TypeError('woed_X should be either numpy.ndarray or pandas.DataFrame')
 
         if isinstance(y, pd.Series):
-            target = y.values
+            y = y.values
         elif isinstance(y, np.ndarray):
-            target = y
+            pass
         else:
             raise TypeError('y should be either numpy.array or pandas.Series')
 
@@ -377,10 +377,15 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         self.transform_sample_size_ = X_beforeWOE.shape[0]
         if isinstance(X_beforeWOE, pd.DataFrame):
             features = X_beforeWOE.values.T
+            self.columns_ = X_beforeWOE.columns.values # column names
         elif isinstance(X_beforeWOE, np.ndarray):
             features = X_beforeWOE.T
+            self.columns_ = np.array(
+                [''.join(('x',str(a))) for a in range(X_beforeWOE.shape[1])]
+                ) #  # column names (i.e. x0, x1, ...)
         else:
             raise TypeError('X_beforeWOE should be either numpy.ndarray or pandas.DataFrame')
+
 
         # Check whether the user choose to load a Scorecard rule table
         if load_scorecard is None:

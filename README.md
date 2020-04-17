@@ -57,7 +57,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 
 ### Updates Log
 
-#### V1.1.2
+#### V1.1.3
 
 - [Fix] Fixed a few minor bugs and warnings detected by Spyder's Static Code Analysis. 
 
@@ -109,7 +109,7 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
 
 ### 更新日志
 
-#### V1.1.2
+#### V1.1.3
 
 - [Fix] 修复Spyder的Static Code Analysis功能检测出的几处小bug和warning.
 

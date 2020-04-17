@@ -170,11 +170,15 @@ class WOE_Encoder(BaseEstimator, TransformerMixin):
         # if X is pandas.DataFrame, turn it into numpy.ndarray and 
         # associate each column array with column names.
         # if X is numpy.ndarray, 
-        self.transform_sample_size_ = X.shape[0]
+        self.transform_sample_size_, self.num_of_x_ = X.shape
         if isinstance(X, pd.DataFrame):
-            features = X[self.columns_].values.T
+            self.columns_ = X.columns.values # column names
+            features = X.values.T            
         elif isinstance(X, np.ndarray):
-            features = X.T
+            self.columns_ = np.array(
+                [''.join(('x',str(a))) for a in range(self.num_of_x_)]
+                ) #  # column names (i.e. x0, x1, ...)
+            features = X.T            
         else:
             raise TypeError('X should be either numpy.ndarray or pandas.DataFrame')
 

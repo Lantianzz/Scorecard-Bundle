@@ -13,7 +13,7 @@ See detailed document at https://github.com/Lantianzz/Scorecard-Bundle
 '''
 setuptools.setup(
 	name="scorecardbundle",
-	version="1.1.2",
+	version="1.1.3",
 	author="Lantian ZHANG",
 	author_email="peter.lantian.zhang@outlook.com",
 	description="The python scorecard modeling library",
