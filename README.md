@@ -30,7 +30,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 
 - Pip: Scorecard-Bundle can be installed with pip:  `pip install --upgrade scorecardbundle` 
 
-- Manually: Down codes from github `<https://github.com/Lantianzz/Scorecard-Bundle>` and import them directly:
+- Manually: Download codes from github `<https://github.com/Lantianzz/Scorecard-Bundle>` and import them directly:
 
   ~~~python
   import sys
