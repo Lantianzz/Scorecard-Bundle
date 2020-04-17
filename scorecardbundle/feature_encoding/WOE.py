@@ -110,6 +110,12 @@ class WOE_Encoder(BaseEstimator, TransformerMixin):
     def __init__(self, epslon=1e-10, output_dataframe=False):
         self.__epslon__ = epslon
         self.__output_dataframe__ = output_dataframe
+        self.fit_sample_size_ = None
+        self.num_of_x_ = None
+        self.columns_ = None
+        self.result_dict_ = None
+        self.iv_ = None
+        self.transform_sample_size_ = None
 
     def fit(self, X, y):
         """
@@ -139,9 +145,9 @@ class WOE_Encoder(BaseEstimator, TransformerMixin):
             raise TypeError('X should be either numpy.ndarray or pandas.DataFrame')
 
         if isinstance(y, pd.Series):
-            target = y.values
+            y = y.values
         elif isinstance(y, np.ndarray):
-            target = y
+            pass
         else:
             raise TypeError('y should be either numpy.array or pandas.Series')
 

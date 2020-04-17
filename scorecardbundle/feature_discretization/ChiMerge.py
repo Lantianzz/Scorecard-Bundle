@@ -5,12 +5,12 @@ Updated on Sat Aug 10 2019
 
 @authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
 
-ChiMerge is a discretization algorithm introduced by Randy Kerber in 
-"ChiMerge: Discretization of Numeric Attributes". It can transform 
-a numerical features into categorical feature or reduce the number 
-of intervals in a ordinal feature based on the feature's distribution 
+ChiMerge is a discretization algorithm introduced by Randy Kerber in
+"ChiMerge: Discretization of Numeric Attributes". It can transform
+a numerical features into categorical feature or reduce the number
+of intervals in a ordinal feature based on the feature's distribution
 and the target classes' relative frequencies in each interval. 
-As a result, it keep statistically significantly different intervals 
+As a result, it keep statistically significantly different intervals
 and merge similar ones.
 """
 
@@ -18,10 +18,10 @@ import pandas as pd
 import numpy as np
 from scipy.stats import chi2
 from sklearn.base import BaseEstimator, TransformerMixin
-
 # ============================================================
 # Basic Functions
 # ============================================================
+
 
 def _assign_interval_base(x, boundaries):
     """Assign each value in x an interval from boundaries.
@@ -38,7 +38,7 @@ def _assign_interval_base(x, boundaries):
     -------
     intervals: numpy.ndarray, shape (number of examples,2)
         The array of intervals that are closed to the right. 
-        The left column and right column of the array are the 
+        The left column and right column of the array are the
         left and right boundary respectively.
     """    
     # Add -inf and inf to the start and end of boundaries
@@ -76,12 +76,12 @@ def assign_interval_unique(x, boundaries):
     -------
     intervals: numpy.ndarray, shape (number of examples,2)
         The array of intervals that are closed to the right. 
-        The left column and right column of the array are the 
+        The left column and right column of the array are the
         left and right boundary respectively.
     
     unique_intervals: numpy.ndarray, shape (number of unique intervals,2)
         The unique intervals that are closed to the right. 
-        The left column and right column of the array are the 
+        The left column and right column of the array are the
         left and right boundary respectively.  
     """
     intervals= _assign_interval_base(x, boundaries)
@@ -100,9 +100,9 @@ def assign_interval_str(x, boundaries, delimiter='~'):
         The boundary values of the intervals to discretize target x. 
 
     delimiter: string, optional(default='~')
-        The returned array will be an array of intervals. Each interval is 
-        representated by string (i.e. '1~2'), which takes the form 
-        lower+delimiter+upper. This parameter control the symbol that 
+        The returned array will be an array of intervals. Each interval is
+        representated by string (i.e. '1~2'), which takes the form
+        lower+delimiter+upper. This parameter control the symbol that
         connects the lower and upper boundaries.
     Returns
     -------
@@ -120,7 +120,7 @@ def assign_interval_str(x, boundaries, delimiter='~'):
 def pivot_table_np(index, column):
     """Perform cross-tabulation to index vector and column vector.
     The returned pivot table has unique index values as its rows, 
-    unique column values as its columns, and sample frequencies 
+    unique column values as its columns, and sample frequencies
     of index-column combinations as its values.
     
     Parameters
@@ -136,7 +136,7 @@ def pivot_table_np(index, column):
     pivot_table: numpy.array, shape (number of unqiue index values, 
                                      number of unqiue column values)
              The pivot table that has unique index values as its rows, 
-             unique column values as its columns, and sample frequencies 
+             unique column values as its columns, and sample frequencies
              of index-column combinations as its values.
              
     column_unique: numpy.array, shape (number of unqiue column values,)
@@ -161,7 +161,7 @@ def pivot_table_np(index, column):
     zeros = np.zeros(dot_multiply.shape[0])
     pivot_table = np.vstack(
         [np.where(dot_multiply[:,1]==j, value, zeros) for j in column_unique]
-        ).T 
+        ).T
     
     # merge the pivot table rows with the same index value
     lowers = dot_multiply[:,0]
@@ -171,7 +171,7 @@ def pivot_table_np(index, column):
     return pivot_table, column_unique, index_unique
 
 def chi2_test(A):
-    """Calculate chi-square value to test whether the frequencies of 
+    """Calculate chi-square value to test whether the frequencies of
     target classes are significantly differenrt in given intervals.
     Reference: "ChiMerge: DIscretization of Numerical Attributes"
     
@@ -186,27 +186,27 @@ def chi2_test(A):
     chi2: float
         The result of Chi square test
     """
-    R = A.sum(axis=1).reshape(1,-1) # number of examples in each interval 
+    R = A.sum(axis=1).reshape(1,-1) # number of examples in each interval
     C = A.sum(axis=0).reshape(1,-1).T # number of examples in each class
     # expected frequency
     # add 0.5 to avoid dividing by a small number (stated in original paper)
     E = np.dot(C, R) / C.sum()  + 0.5 
-    chi2 = (np.square(A.T - E)/E).sum() # chi square value
-    return chi2
+    chi2_value = (np.square(A.T - E)/E).sum() # chi square value
+    return chi2_value
 
 def interval_to_boundary_vector(vector, delimiter='~'):
-    """Transform an array of interval strings into the 
+    """Transform an array of interval strings into the
     unique boundaries of such intervals.
     
     Parameters
     ----------
     vector: numpy.array, shape (number of examples,)
-        The array of interval whose unique boundaries will 
+        The array of interval whose unique boundaries will
         be returned.
 
     delimiter: string, optional(default='~')
         The interval is representated by string (i.e. '1~2'), 
-        which takes the form lower+delimiter+upper. This parameter 
+        which takes the form lower+delimiter+upper. This parameter
         control the symbol that connects the lower and upper boundaries.    
     Returns
     -------
@@ -217,14 +217,14 @@ def interval_to_boundary_vector(vector, delimiter='~'):
     boundaries = boundaries[(boundaries!='-inf') & (boundaries!='inf')].astype(float)
     return boundaries
 
-
 # ============================================================
 # Main Part
 # ============================================================
+
 def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None, 
                      min_intervals=1, initial_intervals=100, 
                      delimiter='~', output_boundary=False):
-    """Merge similar adjacent m intervals until all adjacent 
+    """Merge similar adjacent m intervals until all adjacent
     intervals are significantly different from each other.
     
     Parameters
@@ -240,12 +240,12 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         The number of adjacent intervals to compare during chi-squared test.
     
     confidence_level: float, optional(default=0.9)
-        The confidence level to determine the threshold for intervals to 
+        The confidence level to determine the threshold for intervals to
         be considered as different during the chi-square test.
     
     max_intervals: int, optional(default=None)
         Specify the maximum number of intervals the discretized array will have.
-        Sometimes (like when training a scorecard model) fewer intervals are 
+        Sometimes (like when training a scorecard model) fewer intervals are
         prefered. If do not need this option just set it to None.
 
     min_intervals: int, optional(default=1)
@@ -253,26 +253,26 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         If do not need this option just set it to 1.
 
     initial_intervals: int, optional(default=100)
-        The original Chimerge algorithm starts by putting each unique value 
-        in an interval and merging through a loop. This can be time-consumming 
+        The original Chimerge algorithm starts by putting each unique value
+        in an interval and merging through a loop. This can be time-consumming
         when sample size is large. 
         Set the initial_intervals option to values other than None (like 10 or 100) 
-        will make the algorithm start at the number of intervals specified (the 
-        initial intervals are generated using quantiles). This can greatly shorten 
+        will make the algorithm start at the number of intervals specified (the
+        initial intervals are generated using quantiles). This can greatly shorten
         the run time. If do not need this option just set it to None.
      
     delimiter: string, optional(default='~')
-        The returned array will be an array of intervals. Each interval is 
-        representated by string (i.e. '1~2'), which takes the form 
-        lower+delimiter+upper. This parameter control the symbol that 
+        The returned array will be an array of intervals. Each interval is
+        representated by string (i.e. '1~2'), which takes the form
+        lower+delimiter+upper. This parameter control the symbol that
         connects the lower and upper boundaries.
     
     output_boundary: boolean, optional(default=False)
-        If output_boundary is set to True. This function will output the 
+        If output_boundary is set to True. This function will output the
         unique upper  boundaries of discretized array. If it is set to False,
         This funciton will output the discretized array.
-        For example, if it is set to True and the array is discretized into 
-        3 groups (1,2),(2,3),(3,4), this funciton will output an array of 
+        For example, if it is set to True and the array is discretized into
+        3 groups (1,2),(2,3),(3,4), this funciton will output an array of
         [1,3,4].
 
     Return
@@ -281,11 +281,10 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         Discretized result. The array of intervals that represented by strings.
     """
     # Initialization step
-
     n_j = np.unique(y).shape[0] # number of classes
     n_i = np.unique(x).shape[0] # number of unique x values
-    if (initial_intervals is not None and 
-        initial_intervals < n_i and 
+    if (initial_intervals is not None and
+        initial_intervals < n_i and
         n_i > min_intervals):
         # Use quantiles to bin x
         boundaries = np.unique(
@@ -312,16 +311,14 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
             boundaries = np.array([float('inf')])
     
         return boundaries
-
     # Merging step
-
     if max_intervals is None:
         max_intervals = n_i
     threshold = chi2.ppf(confidence_level, n_j-1) # chi2 threshold
     # pivot table of index*column
     pt_value, pt_column, pt_index = pivot_table_np(intervals[:,1], y)
 
-    # perform Chi-square test on each pair of m adjacent intervals 
+    # perform Chi-square test on each pair of m adjacent intervals
     # use the ith interval's index as the interval pair's index    
     adjacent_list = (pt_value[i:i+m, :] for i in range(len(pt_value)-m+1)) 
     adjacent_index = np.array(
@@ -332,11 +329,11 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
     # if unique_intervals.shape[0] <= min_intervals, stop the loop
     # if min chi2 > threshold and # of unique_intervals<=max_intervals, 
     # stop the loop  
-    while (((chi2_array.min() <= threshold) or (unique_intervals.shape[0] > max_intervals)) and 
+    while (((chi2_array.min() <= threshold) or (unique_intervals.shape[0] > max_intervals)) and
            (unique_intervals.shape[0] > min_intervals)):
-        # identify the index of adjacent pair(s) with smallest chi2 score 
+        # identify the index of adjacent pair(s) with smallest chi2 score
         index_adjacent_to_merge, = np.where(chi2_array==chi2_array.min()) 
-        # identify the interval (or intervals) with smallest chi2 score 
+        # identify the interval (or intervals) with smallest chi2 score
         i_merge = adjacent_index[index_adjacent_to_merge,:]
 
         # merge the intervals for each selected pair
@@ -357,7 +354,7 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         # Reassign intervals with the updated thresholds (unique_intervals)
         intervals, unique_intervals = assign_interval_unique(x, unique_intervals[:,1])
         pt_value, pt_column, pt_index = pivot_table_np(intervals[:,1], y) 
-        # perform Chi-square test on each pair of m adjacent intervals 
+        # perform Chi-square test on each pair of m adjacent intervals
         # use the ith interval's index as the interval pair's index
         adjacent_list = (pt_value[i:i+m, :] for i in range(len(pt_value)-m+1)) 
         adjacent_index = np.array([pt_index[i:i+m] for i in range(len(pt_value)-m+1)]) 
@@ -373,14 +370,13 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
             )    
         return intervals_str
 
-
 class ChiMerge(BaseEstimator, TransformerMixin):
     """
-    ChiMerge is a discretization algorithm introduced by Randy Kerber in 
-    "ChiMerge: Discretization of Numeric Attributes". It can transform 
-    numerical features into categorical features or reduce the number 
-    of intervals in a ordinal feature based on the target classes' relative 
-    frequencies in each interval. As a result, it keep statistically 
+    ChiMerge is a discretization algorithm introduced by Randy Kerber in
+    "ChiMerge: Discretization of Numeric Attributes". It can transform
+    numerical features into categorical features or reduce the number
+    of intervals in a ordinal feature based on the target classes' relative
+    frequencies in each interval. As a result, it keep statistically
     significantly different intervals and merge similar ones.
     
     Parameters
@@ -390,12 +386,12 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         The number of adjacent intervals to compare during chi-squared test.
     
     confidence_level: float, optional(default=0.9)
-        The confidence level to determine the threshold for intervals to 
+        The confidence level to determine the threshold for intervals to
         be considered as different during the chi-square test.
     
     max_intervals: int, optional(default=None)
         Specify the maximum number of intervals the discretized array will have.
-        Sometimes (like when training a scorecard model) fewer intervals are 
+        Sometimes (like when training a scorecard model) fewer intervals are
         prefered. If do not need this option just set it to None.
 
     min_intervals: int, optional(default=1)
@@ -403,26 +399,26 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         If do not need this option just set it to 1.
 
     initial_intervals: int, optional(default=100)
-        The original Chimerge algorithm starts by putting each unique value 
-        in an interval and merging through a loop. This can be time-consumming 
+        The original Chimerge algorithm starts by putting each unique value
+        in an interval and merging through a loop. This can be time-consumming
         when sample size is large. 
         Set the initial_intervals option to values other than None (like 10 or 100) 
-        will make the algorithm start at the number of intervals specified (the 
-        initial intervals are generated using quantiles). This can greatly shorten 
+        will make the algorithm start at the number of intervals specified (the
+        initial intervals are generated using quantiles). This can greatly shorten
         the run time. If do not need this option just set it to None.
      
     delimiter: string, optional(default='~')
-        The returned array will be an array of intervals. Each interval is 
-        representated by string (i.e. '1~2'), which takes the form 
-        lower+delimiter+upper. This parameter control the symbol that 
+        The returned array will be an array of intervals. Each interval is
+        representated by string (i.e. '1~2'), which takes the form
+        lower+delimiter+upper. This parameter control the symbol that
         connects the lower and upper boundaries.
     
     output_boundary: boolean, optional(default=False)
-        If output_boundary is set to True. This function will output the 
+        If output_boundary is set to True. This function will output the
         unique upper  boundaries of discretized array. If it is set to False,
         This funciton will output the discretized array.
-        For example, if it is set to True and the array is discretized into 
-        3 groups (1,2),(2,3),(3,4), this funciton will output an array of 
+        For example, if it is set to True and the array is discretized into
+        3 groups (1,2),(2,3),(3,4), this funciton will output an array of
         [1,3,4].
 
     Attributes
@@ -460,6 +456,11 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         self.__initial_intervals__ = initial_intervals
         self.__delimiter__ = delimiter
         self.__output_dataframe__ = output_dataframe
+        self.fit_sample_size_ = None
+        self.num_of_x_ = None
+        self.columns_ = None
+        self.boundaries_ = None
+        self.transform_sample_size_ = None
     
     def fit(self, X, y):
         """
@@ -473,7 +474,7 @@ class ChiMerge(BaseEstimator, TransformerMixin):
             The target array (or dependent variable).
         """ 
 
-        # if X is pandas.DataFrame, turn it into numpy.ndarray and 
+        # if X is pandas.DataFrame, turn it into numpy.ndarray and
         # associate each column array with column names.
         # if X is numpy.ndarray, 
         self.fit_sample_size_, self.num_of_x_ = X.shape
@@ -507,7 +508,6 @@ class ChiMerge(BaseEstimator, TransformerMixin):
                             ) for i in range(self.num_of_x_)]
         self.boundaries_ = dict(zip(self.columns_, boundary_list))
         return self
-
     def transform(self, X):
         """
         Parameters
@@ -517,7 +517,7 @@ class ChiMerge(BaseEstimator, TransformerMixin):
             The data that need to be discretized.
         """ 
 
-        # if X is pandas.DataFrame, turn it into numpy.ndarray and 
+        # if X is pandas.DataFrame, turn it into numpy.ndarray and
         # associate each column array with column names.
         # if X is numpy.ndarray, 
         self.transform_sample_size_ = X.shape[0]

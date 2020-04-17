@@ -254,6 +254,17 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         self.__start_points__ = start_points
         self.__verbose__ = verbose
         self.__delimiter__ = delimiter
+        self.fit_sample_size_ = None
+        self.num_of_x_ = None
+        self.columns_ = None
+        self.__baseOdds__ = None
+        self.__p__ = None
+        self.AB_ = None
+        self.woe_df_ = None
+        self.startPoints_ = None
+        self.lr_ = None
+        self.transform_sample_size_ = None
+        
     
     def fit(self, woed_X, y):
         """

@@ -55,8 +55,11 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 - [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). The next release will add proper error message for this rare error. 
 - [Fix] When using V1.0.2, songshijun007 brought up an issue about the raise of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been resolved and added to V1.1.0.  (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
-
 ### Updates Log
+
+#### V1.1.2
+
+- [Fix] Fixed a few minor bugs and warnings detected by Spyder's Static Code Analysis. 
 
 #### V1.1.0
 
@@ -105,6 +108,10 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
 - [Fix] 在使用V1.0.2版本时，songshijun007 在issue中提到当测试集存在比训练集更大的特征值时会造成KeyError。这处bug已被解决，已添加到V1.1.0版本中（issue链接https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 ### 更新日志
+
+#### V1.1.2
+
+- [Fix] 修复Spyder的Static Code Analysis功能检测出的几处小bug和warning.
 
 #### V1.1.0 
 

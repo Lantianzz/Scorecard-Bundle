@@ -38,9 +38,9 @@ def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
     # if X is numpy.ndarray, 
     if isinstance(encoded_X, pd.DataFrame):
         data = encoded_X
-    elif isinstance(X, np.ndarray):
+    elif isinstance(encoded_X, np.ndarray):
         columns = np.array(
-            [''.join(('x',str(a))) for a in range(self.num_of_x_)]
+            [''.join(('x',str(a))) for a in range(encoded_X.shape[1])]
             ) #  # column names (i.e. x0, x1, ...)
         data = pd.DataFrame(encoded_X, columns=columns)
     else:

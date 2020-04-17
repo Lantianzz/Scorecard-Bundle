@@ -117,8 +117,7 @@ def plot_event_dist(x, y, delimiter='~',
         'x':x,
         'y':y
         })
-    ' -inf~34.49'.split('~')[-1]
-    data['x_b'] = [float(e.split('~')[-1]) if e.split('~')[-1] not in ('inf','-inf') else (float('inf') if e.split('~')[-1]=='inf' else -float('inf')) for e in data.x]
+    data['x_b'] = [float(e.split(delimiter)[-1]) if e.split(delimiter)[-1] not in ('inf','-inf') else (float('inf') if e.split(delimiter)[-1]=='inf' else -float('inf')) for e in data.x]
     map_xticks = data[['x','x_b']].drop_duplicates().sort_values('x_b')
     event = data.groupby('x_b')['y'].sum()
     freq = data.groupby('x_b')['y'].size()
