@@ -46,8 +46,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 ### Usage
 
 - Like Scikit-Learn, Scorecard-Bundle basiclly have two types of obejects, transforms and predictors. They comply with the fit-transform and fit-predict convention;
-- An sample usage example can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Basic%20scorecard%20modeling%20with%20Scorecard-Bundle.ipynb
-- An Advanced example showing how to build a scorecard with high explainability and good predictability with Scorecard-Bundle can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Build%20a%20scorecard%20with%20high%20explainability%20and%20good%20predictability%20with%20Scorecard-Bundle.ipynb
+- An example showing how to build a scorecard with high explainability and good predictability with Scorecard-Bundle can be found in https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Build%20a%20scorecard%20with%20high%20explainability%20and%20good%20predictability%20with%20Scorecard-Bundle.ipynb
 - See more details in API Guide;
 
 ### Important Notice
@@ -98,8 +97,7 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
 ### 使用
 
 - 与Scikit-Learn相似，Scorecard-Bundle有两种class，transformer和predictor，分别遵守fit-transform和fit-predict习惯；
-- 使用示例参见 https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%E7%A4%BA%E4%BE%8B_%E4%BD%BF%E7%94%A8Scorecard-Bundle%E8%BF%9B%E8%A1%8C%E5%9F%BA%E6%9C%AC%E7%9A%84%E8%AF%84%E5%88%86%E5%8D%A1%E5%BB%BA%E6%A8%A1.ipynb
-- 展示如何训练可解释性和预测力俱佳的评分卡的高级示例 https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Build%20a%20scorecard%20with%20high%20explainability%20and%20good%20predictability%20with%20Scorecard-Bundle.ipynb
+- 展示如何训练可解释性和预测力俱佳的评分卡的示例 https://github.com/Lantianzz/Scorecard-Bundle/blob/master/examples/%5BExample%5D%20Build%20a%20scorecard%20with%20high%20explainability%20and%20good%20predictability%20with%20Scorecard-Bundle.ipynb
 - 详细用法参见API Guide;
 
 ### 重要公告
