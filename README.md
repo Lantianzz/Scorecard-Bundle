@@ -6,6 +6,14 @@ An High-level Scorecard Modeling API | 评分卡建模尽在于此
   - [Installment](#installment)
   - [Usage](#usage)
   - [Core Functions Demonstration](#core-functions-demonstration)
+    - [Load Scorecard Bundle](#Load-Scorecard-Bundle)
+    - [Feature Discretization with ChiMerge](#Feature-Discretization-with-ChiMerge)
+    - [Evaluate Predictabilty](#Evaluate-Predictabilty)
+    - [Feature Engineering (manually adjusting feature intervals)](#Feature-Engineering)
+    - [Feature selection](#Feature-selection)
+    - [Model Training](#Model-Training)
+    - [Scorecard Adjustment](#Scorecard-Adjustment)
+    - [Model Evaluation](#Model-Evaluation)
   - [Important Notice](#important-notice)
   - [Updates Log](#updates-log)
 - [中文文档  (Chinese Document)](#中文文档--chinese-document)
@@ -82,7 +90,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
   print(trans_woe.result_dict_) # woe dictionary and iv value for each feature
   ~~~
 
-- **Feature Engineering (manually adjusting feature intervals)**：Check the sample distribution and event rate distribution for each feature. Adjust the feature intervals to get better interpretability or stability.
+- **Feature Engineering**：Check the sample distribution and event rate distribution for each feature. Adjust the feature intervals to get better interpretability or stability.
 
   - Check the sample distribution and event rate distribution 
 
