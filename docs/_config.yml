@@ -1,1 +1,9 @@
-theme: jekyll-theme-cayman
+remote_theme: rundocs/jekyll-rtd-theme
+plugins:
+  - jekyll-default-layout
+  - jekyll-readme-index
+  - jekyll-github-metadata
+  - jekyll-titles-from-headings
+  - jemoji
+  - jekyll-avatar
+  - jekyll-mentions
