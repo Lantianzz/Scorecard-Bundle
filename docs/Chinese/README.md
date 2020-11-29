@@ -9,7 +9,7 @@ sort: 1
 
 - [简介&安装](http://scorecard-bundle.bubu.blue/Chinese/1.intro.html)
 
-- [快速入门]http://scorecard-bundle.bubu.blue/Chinese/2.usage.html)
+- [快速入门](http://scorecard-bundle.bubu.blue/Chinese/2.usage.html)
     - [模块导入](http://scorecard-bundle.bubu.blue/Chinese/2.usage.html#模块导入)
     - [特征离散化（ChiMerge）](http://scorecard-bundle.bubu.blue/Chinese/2.usage.html#特征离散化（ChiMerge）)
     - [特征编码（WOE）和评估（IV）](http://scorecard-bundle.bubu.blue/Chinese/2.usage.html#特征编码（WOE）和评估（IV）)
