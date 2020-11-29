@@ -1,7 +1,7 @@
   
-title: RunDocs
+title: Scorecard-Bundle
 lang: en
-description: Extends the continuous integration documentation capabilities of GitHub pages for everyone!
+description: An High-level Scorecard Modeling API
 
 remote_theme: rundocs/jekyll-rtd-theme
 
