@@ -1,10 +1,9 @@
 [![Downloads](https://pepy.tech/badge/scorecardbundle)](https://pepy.tech/project/scorecardbundle)  [![Downloads](https://img.shields.io/pypi/v/scorecardbundle?color=orange)](https://img.shields.io/pypi/v/scorecardbundle?color=orange)
 
-An High-level Scorecard Modeling API | 评分卡建模尽在于此
 
-
-
-## English Document
+---
+English Document
+---
 
 ### Introduction
 
@@ -34,8 +33,9 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 - See more details in API Guide;
 
 
-
-## 中文文档  (Chinese Document)
+---
+中文文档  (Chinese Document)
+---
 
 ### 简介
 
