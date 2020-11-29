@@ -70,6 +70,8 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 
 - **Feature Discretization with ChiMerge**
 
+  Note that the feature intervals here are open to the left and close to the right.
+
   ~~~python
   trans_cm = cm.ChiMerge(max_intervals=10, min_intervals=5, output_dataframe=True)
   result_cm = trans_cm.fit_transform(X, y) 
@@ -197,7 +199,9 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 
   <img src="pics/heatmap.PNG">
 
-- **Model Training**: Train the Scorecard model and get the scoring rules. Note that the feature intervals (`value` column in the rules table) are all open to the left and close to the right (e.g. 34.0~37.6 means (34.037.6] ). 
+- **Model Training**: Train the Scorecard model and get the scoring rules. 
+
+  Note that the feature intervals (`value` column in the rules table) are all open to the left and close to the right (e.g. 34.0~37.6 means (34.0, 37.6] ). 
 
   ```python
   model = lrsc.LogisticRegressionScoreCard(trans_woe, PDO=-20, basePoints=100, verbose=True)
@@ -359,6 +363,8 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
 
 - **特征离散化（基于ChiMerge）**
 
+  这里的特征区间均为左开右闭区间。
+
   ~~~python
   trans_cm = cm.ChiMerge(max_intervals=10, min_intervals=5, output_dataframe=True)
   result_cm = trans_cm.fit_transform(X, y) 
@@ -488,6 +494,8 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
   <img src="pics/heatmap.PNG">
 
 - **模型训练**
+
+  这里的特征区间（评分规则表的value列）均为左开右闭区间（e.g. 34.0~37.6 代表 (34,  37.6] ）
 
   ```python
   model = lrsc.LogisticRegressionScoreCard(trans_woe, PDO=-20, basePoints=100, verbose=True)
