@@ -96,7 +96,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
     fia.plot_event_dist(result_cm[col],y,x_rotation=60)
     ```
 
-    <img src="pics/fe_eg1.PNG">
+    <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/fe_eg1.PNG">
 
   - Adjust the feature intervals to get better interpretability or stability
 
@@ -120,7 +120,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
                        x_rotation=60,save=True)
     ~~~
 
-    <img src="pics/fe_eg2.PNG">
+    <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/fe_eg2.PNG">
 
   - Update the dataset of binned features
 
@@ -197,7 +197,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
   plt.show()
   ~~~
 
-  <img src="pics/heatmap.PNG">
+  <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/heatmap.PNG">
 
 - **Model Training**: Train the Scorecard model and get the scoring rules. 
 
@@ -291,7 +291,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
   evaluation.plot_all()
   ~~~
 
-  <img src="pics/eval.PNG">
+  <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/eval.PNG">
 
 
 
@@ -388,7 +388,7 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
     col = 'housing_median_age'
     fia.plot_event_dist(result_cm[col],y,x_rotation=60)
     ```
-    <img src="pics/fe_eg1.PNG">
+    <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/fe_eg1.PNG">
 
   - 修改特征分组
 
@@ -412,7 +412,7 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
                        x_rotation=60,save=True)
     ~~~
     
-    <img src="pics/fe_eg2.PNG">
+    <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/fe_eg2.PNG">
     
   - 更新分组特征数据
 
@@ -491,7 +491,7 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
   plt.show()
   ~~~
 
-  <img src="pics/heatmap.PNG">
+  <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/heatmap.PNG">
 
 - **模型训练**
 
@@ -585,7 +585,7 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
   evaluation.plot_all()
   ~~~
 
-  <img src="pics/eval.PNG">
+  <img src="https://github.com/Lantianzz/Scorecard-Bundle/blob/master/pics/eval.PNG">
 
 ### 重要公告
 
