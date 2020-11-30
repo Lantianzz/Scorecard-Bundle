@@ -4,7 +4,7 @@
 
 A High-level Scorecard Modeling API | 评分卡建模尽在于此
 
-**Documentation page** | **文档页面**：**http://scorecard-bundle.bubu.blue/**
+**Documentation page** | **文档页面**：**https://scorecard-bundle.bubu.blue/**
 
 
 
@@ -27,9 +27,9 @@ A High-level Scorecard Modeling API | 评分卡建模尽在于此
 
 Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use and **Scikit-Learn consistent**.  It covers the major steps to train a Scorecard model such as feature discretization with ChiMerge, WOE encoding, feature evaluation with information value and collinearity, Logistic-Regression-based Scorecard model, and model evaluation for binary classification tasks. All the transformer and model classes in Scorecard-Bundle comply with Scikit-Learn‘s fit-transform-predict convention.
 
-A complete example showing how to build a scorecard with Scorecard-Bundle: [Example Notebooks](http://scorecard-bundle.bubu.blue/Notebooks/)
+A complete example showing how to build a scorecard with Scorecard-Bundle: [Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
 
-See detailed and more reader-friendly documentation in **http://scorecard-bundle.bubu.blue/**
+See detailed and more reader-friendly documentation in **https://scorecard-bundle.bubu.blue/**
 
 ### Installment
 
@@ -79,9 +79,9 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
 
 Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便且符合Scikit-Learn的调用习惯，包含的类均遵守Scikit-Learn的fit-transform-predict习惯。Scorecard-Bundle包括基于ChiMerge的特征离散化、WOE编码、基于信息值（IV）和共线性的特征评估、基于逻辑回归的评分卡模型、以及针对二元分类任务的模型评估。
 
-展示如何训练评分卡模型的完整示例见[Example Notebooks](http://scorecard-bundle.bubu.blue/Notebooks/)
+展示如何训练评分卡模型的完整示例见[Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
 
-详细的、更友好的文档见**http://scorecard-bundle.bubu.blue/**
+详细的、更友好的文档见**https://scorecard-bundle.bubu.blue/**
 
 ### 安装
 

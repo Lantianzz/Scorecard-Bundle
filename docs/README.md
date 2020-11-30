@@ -12,7 +12,7 @@ Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use 
 
 This documentation is organized as followed:
 
-- [中文文档](http://scorecard-bundle.bubu.blue/Chinese/)
-- [English Documentation](http://scorecard-bundle.bubu.blue/English/)
-- [Example Notebooks](http://scorecard-bundle.bubu.blue/Notebooks/): A complete example showing how to build a scorecard with Scorecard-Bundle;
-- [API Reference](http://scorecard-bundle.bubu.blue/API/): Detailed documentation about the package.
+- [中文文档](https://scorecard-bundle.bubu.blue/Chinese/)
+- [English Documentation](https://scorecard-bundle.bubu.blue/English/)
+- [Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/): A complete example showing how to build a scorecard with Scorecard-Bundle;
+- [API Reference](https://scorecard-bundle.bubu.blue/API/): Detailed documentation about the package.
