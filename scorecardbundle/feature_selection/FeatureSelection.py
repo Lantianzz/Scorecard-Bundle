@@ -75,12 +75,12 @@ def selection_with_corr(encoded_X,dict_iv,threshold_corr=0.6):
 
     Return
     ----------
-    result_selection: pandas.DataFrame,
-            The table that contains 4 columns. column factor contains the 
-            feature names, column IV contains the IV of features, 
-            column woe_dict contains the WOE values of features and 
-            column corr_with contains the feature that are highly correlated
-            with this feature together with the correlation coefficients.
+    corr_unstack: pandas.DataFrame,
+            The Pearson correlation coefficients and information values (IV) 
+            of highly-correlated features pair.
+
+    features_to_drop: python list,
+            The features that are supposed to be removed due to colinearity problem.
     """
     # if X is pandas.DataFrame, turn it into numpy.ndarray and 
     # associate each column array with column names.
@@ -99,4 +99,5 @@ def selection_with_corr(encoded_X,dict_iv,threshold_corr=0.6):
     corr_unstack['iv_feature_b'] = corr_unstack['feature_b'].map(lambda x: dict_iv[x])
     corr_unstack['to_drop'] = np.where(corr_unstack.iv_feature_a>corr_unstack.iv_feature_b,corr_unstack.feature_b,corr_unstack.feature_a)
     corr_unstack = corr_unstack[corr_unstack['iv_feature_a']!=corr_unstack['iv_feature_b']].reset_index(drop=True)
-    return corr_unstack, list(corr_unstack.to_drop.unique())
+    features_to_drop = list(corr_unstack.to_drop.unique())
+    return corr_unstack, features_to_drop
