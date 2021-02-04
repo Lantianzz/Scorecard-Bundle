@@ -57,3 +57,46 @@ def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
             corr_matrix[corr_matrix.corr_with!=col][col][mask].values)
         ) for mask,col in corr_mask]
     return result_selection
+
+def selection_with_corr(encoded_X,dict_iv,threshold_corr=0.6):
+    """Identify the highly-correlated features pair that may cause colinearity problem.
+
+    Parameters
+    ----------
+    encoded_X: numpy.ndarray or pandas.DataFrame,
+            The encoded features data
+
+    dict_iv: python dictionary.
+            The ditionary where the keys are feature names and values are the information values (iv)
+   
+    threshold_corr: float, optional(default=0.6)
+            The threshold of Pearson correlation coefficient. Exceeding
+            This threshold means the features are highly correlated.
+
+    Return
+    ----------
+    result_selection: pandas.DataFrame,
+            The table that contains 4 columns. column factor contains the 
+            feature names, column IV contains the IV of features, 
+            column woe_dict contains the WOE values of features and 
+            column corr_with contains the feature that are highly correlated
+            with this feature together with the correlation coefficients.
+    """
+    # if X is pandas.DataFrame, turn it into numpy.ndarray and 
+    # associate each column array with column names.
+    # if X is numpy.ndarray, 
+    if isinstance(encoded_X, pd.DataFrame):
+        data = encoded_X
+    else:
+        raise TypeError('encoded_X should be either pandas.DataFrame')
+
+    corr_matrix = data.corr()
+    corr_unstack = corr_matrix.unstack().reset_index()
+    corr_unstack.columns = ['feature_a','feature_b','corr_coef']
+    corr_unstack = corr_unstack[corr_unstack['feature_a']!=corr_unstack['feature_b']].reset_index(drop=True)
+    corr_unstack = corr_unstack[corr_unstack.corr_coef.abs()>threshold_corr].reset_index(drop=True)
+    corr_unstack['iv_feature_a'] = corr_unstack['feature_a'].map(lambda x: dict_iv[x])
+    corr_unstack['iv_feature_b'] = corr_unstack['feature_b'].map(lambda x: dict_iv[x])
+    corr_unstack['to_drop'] = np.where(corr_unstack.iv_feature_a>corr_unstack.iv_feature_b,corr_unstack.feature_b,corr_unstack.feature_a)
+    corr_unstack = corr_unstack[corr_unstack['iv_feature_a']!=corr_unstack['iv_feature_b']].reset_index(drop=True)
+    return corr_unstack, list(corr_unstack.to_drop.unique())
