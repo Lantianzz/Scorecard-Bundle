@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Aug 12 2019
-Updated on Mon Aug 12 2019
+"""Feature selection tools
 
-@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
-
+@authors: Lantian ZHANG
 """
 import pandas as pd
 import numpy as np

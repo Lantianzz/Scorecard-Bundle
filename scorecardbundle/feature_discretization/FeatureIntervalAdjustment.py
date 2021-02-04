@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Nov 1 2018
-Updated on Sat Mar 31 2020
-
-@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
-
 Visualizing feature event rate distribution to facilitate explainability evaluation.
+
+@authors: Lantian ZHANG
 """
 import pandas as pd
 import numpy as np 

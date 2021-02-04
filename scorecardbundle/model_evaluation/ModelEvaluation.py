@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Dec 12 2018
-Updated on Sat Aug 11 2019
-@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
+Model evaluation for binary classification task.
 
-Model evaluation
+@authors: Lantian ZHANG
 """
 
 import pandas as pd

@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jan 8 2021
-Updated on Thu Feb 3 2021
-
-@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
-
 Identify the features who contribute the most in pusing the total score above a threshold.
+
+@authors: Lantian ZHANG
 """
 import pandas as pd
 import numpy as np 

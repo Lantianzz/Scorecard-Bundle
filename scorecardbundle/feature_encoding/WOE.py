@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Dec 3 2018
-Updated on Sat Aug 10 2019
-
-@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
-
-The codes below perform WOE transformation and IV calculation for features 
+Perform Weight of Evidence (WOE) transformation 
+and Information value (IV) calculation for features 
 The data format of features should be string or number.
+
+@authors: Lantian ZHANG
 """
 import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
+
+from ..utils.func_numpy import map_np
 
 def woe_vector(x, y, epslon=1e-10):
     """Calculate WOE and IV for 1 feature
@@ -54,23 +54,6 @@ def woe_vector(x, y, epslon=1e-10):
     iv = np.sum((local_pos/positive - local_neg/negative) * woe_values)
     
     return woe_dict, iv
-
-def map_np(array, dictionary):
-    """map function for numpy array
-    Parameters
-    ----------
-    array: numpy.array, shape (number of examples,)
-            The array of data to map values to.
-    
-    distionary: dict
-            The distionary object.
-
-    Return
-    ----------
-    result: numpy.array, shape (number of examples,)
-            The mapped result.         
-    """
-    return [dictionary[e] for e in array]
 
 class WOE_Encoder(BaseEstimator, TransformerMixin):
     """

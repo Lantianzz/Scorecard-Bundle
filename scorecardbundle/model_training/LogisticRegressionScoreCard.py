@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Dec  9  12:03:43 2018
-Updated on Thu Dec  13 15:35:00 2018
+Training the logistic regression based Scorecard model.
 
-@author: Lantian ZHANG <peter.lantian.zhang@outlook.com>
-
-Python module for standard scorecard modeling 
+@author: Lantian ZHANG
 """
 
 from sklearn.linear_model import LogisticRegression
@@ -13,111 +10,14 @@ import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from ..utils.func_numpy import assign_interval_str
+from ..utils.func_numpy import interval_to_boundary_vector
+from ..utils.func_numpy import map_np
+
+
 # ============================================================
 # Basic Functions
 # ============================================================
-
-def _assign_interval_base(x, boundaries):
-    """Assign each value in x an interval from boundaries.
-    
-    Parameters
-    ----------
-    x: numpy.array, shape (number of examples,)
-        The column of data that need to be discretized.
-    
-    boundaries: numpy.array, shape (number of interval boundaries,)
-        The boundary values of the intervals to discretize target x. 
-    
-    Returns
-    -------
-    intervals: numpy.ndarray, shape (number of examples,2)
-        The array of intervals that are closed to the right. 
-        The left column and right column of the array are the 
-        left and right boundary respectively.
-    """    
-    # Add -inf and inf to the start and end of boundaries
-    boundaries = np.unique(
-        np.concatenate((np.array([-float('inf')]),
-                        boundaries,np.array([float('inf')])), 
-                        axis=0))
-    # The max boundary that is smaller than x_i is its lower boundary.
-    # The min boundary that is >= than x_i is its upper boundary. 
-    # Adding equal is because all intervals here are closed to the right.
-    boundaries_diff_boolean = x.reshape(1,-1).T > boundaries.reshape(1,-1) 
-    lowers = [boundaries[b].max() for b in boundaries_diff_boolean] 
-    uppers = [boundaries[b].min() for b in ~boundaries_diff_boolean] 
-    # Array of intervals that are closed to the right
-    intervals= np.stack((lowers, uppers), axis=1) 
-    return intervals
-
-def assign_interval_str(x, boundaries, delimiter='~'):
-    """Assign each value in x an interval from boundaries.
-    
-    Parameters
-    ----------
-    x: numpy.array, shape (number of examples,)
-        The column of data that need to be discretized.
-    
-    boundaries: numpy.array, shape (number of interval boundaries,)
-        The boundary values of the intervals to discretize target x. 
-
-    delimiter: string, optional(default='~')
-        The returned array will be an array of intervals. Each interval is 
-        representated by string (i.e. '1~2'), which takes the form 
-        lower+delimiter+upper. This parameter control the symbol that 
-        connects the lower and upper boundaries.
-    Returns
-    -------
-    intervals_str: numpy.array, shape (number of examples,)
-        Discretized result. The array of intervals that represented by strings. 
-    """
-    intervals= _assign_interval_base(x, boundaries)
-    # use join rather than use a+delimiter+b makes this line faster
-    intervals_str = np.array(
-        [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
-                                                        intervals[:,1])]
-        )
-    return intervals_str
-
-def interval_to_boundary_vector(vector, delimiter='~'):
-    """Transform an array of interval strings into the 
-    unique boundaries of such intervals.
-    
-    Parameters
-    ----------
-    vector: numpy.array, shape (number of examples,)
-        The array of interval whose unique boundaries will 
-        be returned.
-
-    delimiter: string, optional(default='~')
-        The interval is representated by string (i.e. '1~2'), 
-        which takes the form lower+delimiter+upper. This parameter 
-        control the symbol that connects the lower and upper boundaries.    
-    Returns
-    -------
-    boundaries: numpy.array, shape (number of interval boundaries,)
-        An array of boundary values.
-    """
-    boundaries = np.array(list(set(delimiter.join(np.unique(vector)).split(delimiter))))
-    boundaries = boundaries[(boundaries!='-inf') & (boundaries!='inf')].astype(float)
-    return boundaries
-
-def map_np(array, dictionary):
-    """map function for numpy array
-    Parameters
-    ----------
-    array: numpy.array, shape (number of examples,)
-            The array of data to map values to.
-    
-    distionary: dict
-            The distionary object.
-
-    Return
-    ----------
-    result: numpy.array, shape (number of examples,)
-            The mapped result.         
-    """
-    return [dictionary[e] for e in array]
 
 def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
     """Apply the scorecard to a column. Return the score for each value.
