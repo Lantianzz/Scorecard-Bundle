@@ -111,7 +111,18 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     
     Attributes
     ---------- 
-    woe_df_: pandas.DataFrame, the scorecard.
+    woe_df_: pandas.DataFrame, the Scorecard scoring rules.
+            The table contains 5 columns (feature, value, woe, beta and score). 
+            - 'feature' column: feature names
+            - 'value' column: feature intervals (right-closed)
+            - 'woe' column: WOE encodings of feature intervals
+            - 'score' column: the score for the feature interval respectively
+
+            An example would be as followed,
+            feature value   woe         beta        score
+            x1      30~inf  0.377563    0.631033    5.0
+            x1      20~-30  1.351546    0.631033    37.0
+            x1      -inf~20 1.629890    0.631033    -17.0
     
     AB_ : A and B when converting regression to scorecard.
 

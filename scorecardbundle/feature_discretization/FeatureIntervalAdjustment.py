@@ -121,7 +121,7 @@ def feature_stat_str(x, y, delimiter='~', n_lines=40, width=20):
 
 def plot_event_dist(x, y, delimiter='~',
                 title='', x_label='', y_label='', 
-                x_rotation=0, xticks=None, 
+                x_rotation=60, xticks=None, 
                 figure_height=4, figure_width=6, 
                 table_vpos=None,table_hpos=0.01,
                 save=False, path='',file_name='feature'):
@@ -151,7 +151,7 @@ def plot_event_dist(x, y, delimiter='~',
         The label of the dependent variable. Default is ''.
     
     x_rotation: int. Optional.
-        The degree of rotation of x-axis ticks. Default is 0.
+        The degree of rotation of x-axis ticks. Default is 60.
     
     xticks: Python list of strings. Optional.
         The tick labels on x-axis. Default is the unique values
@@ -163,20 +163,31 @@ def plot_event_dist(x, y, delimiter='~',
     figure_width: int. Optional.
         The width of the figure. Default is 6.
     
+    table_vpos: float. Optional.
+        The vertical position of data table below the plot.
+        table_vpos should be negative float. Default is None, 
+        which means table_vpos will be determined automatically
+        according to the number of intervals in the feature.
+
+    table_hpos: float. Optional.
+        The horizontal position of data table below the plot.
+        Default is 0.01. Normally there is no need to change
+        this parameter.
+
     save: boolean. Optional.
         Whether or not the figure is saved to a local positon.
         Default is False.
     
     path: Python string. Optional.
+        Only use when parameter 'save' is True.
         The local position path where the figure will be saved.
-        This should be set when parameter save is True. Default is ''.
+        Default is ''.
+
+    file_name: Python string. Optional.
+        Only use when parameter 'save' is True.
+        The file will be named as f'{path}featuredist_{file_name}.png'
     
-        
-    Returns
-    -------
-    f1_ax1: matplotlib.axes._subplots.AxesSubplot
-        The figure object is returned.
-    """    
+    """
 
     # Check the inputs
     if isinstance(x, pd.Series):
@@ -220,12 +231,12 @@ def plot_event_dist(x, y, delimiter='~',
     f1_ax2 = f1_ax1.twinx() # the x axis shared by two y axies
     f1_ax2.plot(plot_x, plot_y, 'r', alpha=0.4)
     # Plot event rate distribution as line plot
-    f1_ax2.legend(('Event Rate',),loc=1)
+    f1_ax2.legend(('Event rate',),loc=1)
     f1_ax1.set_xticks(plot_x) # set xtick value
     f1_ax1.set_xticklabels(plot_x_labels) # set xtick label
     f1_ax1.tick_params(axis='x', rotation=x_rotation) # set xtick label's rotation
     f1_ax1.set_xlabel(x_label, fontdict=font_text)
-    f1_ax2.set_ylabel('Event Rate: '+y_label, fontdict=font_text)
+    f1_ax2.set_ylabel('Event rate '+y_label, fontdict=font_text)
     f1_ax1.legend(('Sample size',),loc=2)
     f1_ax1.set_ylabel('Sample size', fontdict=font_text)
     
