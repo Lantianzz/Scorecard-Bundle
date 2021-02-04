@@ -123,7 +123,7 @@ def plot_event_dist(x, y, delimiter='~',
                 title='', x_label='', y_label='', 
                 x_rotation=60, xticks=None, 
                 figure_height=4, figure_width=6, 
-                table_vpos=None,table_hpos=0.01,
+                data_table=True,table_vpos=None,table_hpos=0.01,
                 save=False, path='',file_name='feature'):
     """Visualizing feature event rate distribution 
     to facilitate explainability evaluation.
@@ -162,14 +162,20 @@ def plot_event_dist(x, y, delimiter='~',
     
     figure_width: int. Optional.
         The width of the figure. Default is 6.
+
+    data_table: boolean. Optional.
+        Whether or not to include data table in the plot.
+        Default is True.
     
     table_vpos: float. Optional.
+        Only use when parameter 'data_table' is True.
         The vertical position of data table below the plot.
         table_vpos should be negative float. Default is None, 
         which means table_vpos will be determined automatically
         according to the number of intervals in the feature.
 
     table_hpos: float. Optional.
+        Only use when parameter 'data_table' is True.
         The horizontal position of data table below the plot.
         Default is 0.01. Normally there is no need to change
         this parameter.
@@ -258,7 +264,8 @@ def plot_event_dist(x, y, delimiter='~',
     else:
         table_vpos = -0.55*np.log(tem_stat.shape[0]-1)
     # Output feature distribution table along with the plot
-    plt.figtext(table_hpos,table_vpos,tem_stat_str)
+    if data_table:
+        plt.figtext(table_hpos,table_vpos,tem_stat_str)
 
     # Save plot as png file in a local position
     if save:
