@@ -58,7 +58,7 @@ def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
         ) for mask,col in corr_mask]
     return result_selection
 
-def selection_with_corr(encoded_X,dict_iv,threshold_corr=0.6):
+def identify_colinear_features(encoded_X,dict_iv,threshold_corr=0.6):
     """Identify the highly-correlated features pair that may cause colinearity problem.
 
     Parameters
