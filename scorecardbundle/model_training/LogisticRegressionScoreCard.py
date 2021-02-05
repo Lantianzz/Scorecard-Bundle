@@ -107,7 +107,9 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     delimiter: string, optional(default='~')
         The feature interval is representated by string (i.e. '1~2'), 
         which takes the form lower+delimiter+upper. This parameter 
-        is the symbol that connects the lower and upper boundaries.
+        is the symbol that connects the lower and upper boundaries..
+
+    **kargs: other keyword arguments in sklearn.linear_model.LogisticRegression()
     
     Attributes
     ---------- 
@@ -128,7 +130,7 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
 
     Methods
     -------
-    fit(woed_X, y): 
+    fit(woed_X, y,**kargs): 
             fit the Scorecard model.
 
     predict(X_beforeWOE, load_scorecard=None): 
@@ -151,7 +153,7 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     def __init__(self, woe_transformer, C=1, class_weight=None, random_state=None,
                  PDO=-20, basePoints = 100, decimal=0, start_points = False,
                  output_option='excel', output_path=None, verbose=False, 
-                 delimiter='~'):
+                 delimiter='~', **kargs):
         
         self.__woe_transformer__ = woe_transformer
         self.__C__ = C
@@ -173,11 +175,15 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         self.AB_ = None
         self.woe_df_ = None
         self.startPoints_ = None
-        self.lr_ = None
         self.transform_sample_size_ = None
+        self.lr_ = LogisticRegression(C=C
+                                ,class_weight=class_weight
+                                ,random_state=random_state
+                                , **kargs
+                                )
         
     
-    def fit(self, woed_X, y):
+    def fit(self, woed_X, y, **kargs):
         """
         Parameters
         ----------
@@ -187,6 +193,9 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         
         y: numpy.array or pandas.Series, shape (number of examples,)
             The target array (or dependent variable).
+
+        **kargs: other keyword arguments in the fit()
+            of sklearn.linear_model.LogisticRegression
         """ 
 
         # if X is pandas.DataFrame, turn it into numpy.ndarray and 
@@ -229,16 +238,13 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
                                  ).rename(columns={0:'feature',1:'value',2:'woe'})
 
         # Fit a logistic regression
-        lr = LogisticRegression(C=self.__C__, 
-                                class_weight=self.__class_weight__,
-                                random_state=self.__random_state__)
-        lr.fit(features, y)
+        self.lr_.fit(features, y,**kargs)
         
         # Calculate scores for each value in each feature, and the start scores
         beta_map = dict(zip(list(self.columns_), 
-                            lr.coef_[0,:]))
+                            self.lr_.coef_[0,:]))
         self.woe_df_['beta'] = map_np(self.woe_df_.feature, beta_map)
-        self.startPoints_ = A - B * lr.intercept_[0]    
+        self.startPoints_ = A - B * self.lr_.intercept_[0]    
         
         # Rule table for Scoracard
         if self.__start_points__ is True:
@@ -265,7 +271,6 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
             self.woe_df_.to_excel('scorecards.xlsx', index=False)
         elif self.__output_option__ == 'excel' and self.__output_path__ is not None:
             self.woe_df_.to_excel(self.__output_path__+'scorecards.xlsx', index=False)
-        self.lr_ = lr
 
     def predict(self, X_beforeWOE, load_scorecard=None):
         """Apply the scorecard.
