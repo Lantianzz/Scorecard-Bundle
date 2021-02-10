@@ -33,7 +33,8 @@ def _instance_important_features(scores,feature_names,threshold):
     max_value = tem['cum_score'].max()
     threshold =  max_value if max_value<threshold else threshold # Make sure the threshold passed is no larger than the maximum value
     tem = tem[tem.score>0].reset_index(drop=True) # Exclude negative scores since they drag down the total score rather than push up
-    tem = tem.iloc[0:tem.index[tem['cum_score']<threshold].max()+1,:] # Filter the features that contribute the most
+    idx = tem.index[tem['cum_score']<threshold].max()+1 if sum(tem['cum_score']<threshold)>0 else 1
+    tem = tem.iloc[0:idx,:] # Filter the features that contribute the most
     ifeatures = dict(zip(tem.iloc[:,0],tem.iloc[:,1])) # returned dictionary
     return ifeatures
 

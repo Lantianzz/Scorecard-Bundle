@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Feature selection tools
+"""Feature selection tools.
 
 @authors: Lantian ZHANG
 """
@@ -58,6 +58,40 @@ def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
         ) for mask,col in corr_mask]
     return result_selection
 
+def unstacked_corr_table(encoded_X,dict_iv):
+    """Identify the highly-correlated features pair that may cause colinearity problem.
+
+    Parameters
+    ----------
+    encoded_X: numpy.ndarray or pandas.DataFrame,
+            The encoded features data
+
+    dict_iv: python dictionary.
+            The ditionary where the keys are feature names and values are the information values (iv)
+   
+    Return
+    ----------
+    corr_auto: pandas.DataFrame,
+            The unstacked correlation table
+
+    """
+    # if X is pandas.DataFrame, turn it into numpy.ndarray and 
+    # associate each column array with column names.
+    # if X is numpy.ndarray, 
+    if isinstance(encoded_X, pd.DataFrame):
+        data = encoded_X
+    else:
+        raise TypeError('encoded_X should be either pandas.DataFrame')
+
+    corr_matrix = data.corr()
+    corr_unstack = corr_matrix.unstack().reset_index()
+    corr_unstack.columns = ['feature_a','feature_b','corr_coef']
+    corr_unstack['abs_corr_coef'] = corr_unstack['corr_coef'].abs()
+    corr_unstack = corr_unstack[corr_unstack['feature_a']!=corr_unstack['feature_b']].reset_index(drop=True)
+    corr_unstack['iv_feature_a'] = corr_unstack['feature_a'].map(lambda x: dict_iv[x])
+    corr_unstack['iv_feature_b'] = corr_unstack['feature_b'].map(lambda x: dict_iv[x])
+    return corr_unstack.sort_values('abs_corr_coef',ascending=False)
+
 def identify_colinear_features(encoded_X,dict_iv,threshold_corr=0.6):
     """Identify the highly-correlated features pair that may cause colinearity problem.
 
@@ -75,12 +109,22 @@ def identify_colinear_features(encoded_X,dict_iv,threshold_corr=0.6):
 
     Return
     ----------
-    corr_unstack: pandas.DataFrame,
-            The Pearson correlation coefficients and information values (IV) 
-            of highly-correlated features pair.
+    features_to_drop_auto: python list,
+            The features with lower IVs in highly correlated pairs.
 
-    features_to_drop: python list,
-            The features that are supposed to be removed due to colinearity problem.
+    features_to_drop_manual: python list,
+            The features with equal IVs in highly correlated pairs.
+
+    corr_auto: pandas.DataFrame,
+            The Pearson correlation coefficients and information values (IV) 
+            of highly-correlated features pairs where the feature with lower IV
+            will be dropped.
+
+    corr_manual: pandas.DataFrame,
+            The Pearson correlation coefficients and information values (IV) 
+            of highly-correlated features pairs where the features have equal IV values
+            and human intervention is required to choose the feature to drop.
+
     """
     # if X is pandas.DataFrame, turn it into numpy.ndarray and 
     # associate each column array with column names.
@@ -98,6 +142,8 @@ def identify_colinear_features(encoded_X,dict_iv,threshold_corr=0.6):
     corr_unstack['iv_feature_a'] = corr_unstack['feature_a'].map(lambda x: dict_iv[x])
     corr_unstack['iv_feature_b'] = corr_unstack['feature_b'].map(lambda x: dict_iv[x])
     corr_unstack['to_drop'] = np.where(corr_unstack.iv_feature_a>corr_unstack.iv_feature_b,corr_unstack.feature_b,corr_unstack.feature_a)
-    corr_unstack = corr_unstack[corr_unstack['iv_feature_a']!=corr_unstack['iv_feature_b']].reset_index(drop=True)
-    features_to_drop = list(corr_unstack.to_drop.unique())
-    return corr_unstack, features_to_drop
+    corr_manual = corr_unstack[corr_unstack['iv_feature_a']==corr_unstack['iv_feature_b']].reset_index(drop=True)
+    corr_auto = corr_unstack[corr_unstack['iv_feature_a']!=corr_unstack['iv_feature_b']].reset_index(drop=True)
+    features_to_drop_auto = list(corr_auto.to_drop.unique())
+    features_to_drop_manual = list(corr_manual.to_drop.unique())
+    return features_to_drop_auto, features_to_drop_manual, corr_auto, corr_manual

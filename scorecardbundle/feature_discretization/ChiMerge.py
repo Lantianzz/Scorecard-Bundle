@@ -56,7 +56,8 @@ def chi2_test(A):
 
 def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None, 
                      min_intervals=1, initial_intervals=100, 
-                     delimiter='~', output_boundary=False):
+                     delimiter='~', decimal=None,
+                     output_boundary=False):
     """Merge similar adjacent m intervals until all adjacent
     intervals are significantly different from each other.
     
@@ -99,7 +100,11 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         representated by string (i.e. '1~2'), which takes the form
         lower+delimiter+upper. This parameter control the symbol that
         connects the lower and upper boundaries.
-    
+
+    decimal: int,  optional(default=None)
+        Control the number of decimals of boundaries.
+        Default is None.
+
     output_boundary: boolean, optional(default=False)
         If output_boundary is set to True. This function will output the
         unique upper  boundaries of discretized array. If it is set to False,
@@ -113,38 +118,45 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
     intervals_str: numpy.array, shape (number of examples,)
         Discretized result. The array of intervals that represented by strings.
     """
+    # --------------------
     # Initialization step
+    # --------------------
+
+    # Put x values into intervals
     n_j = np.unique(y).shape[0] # number of classes
     n_i = np.unique(x).shape[0] # number of unique x values
     if (initial_intervals is not None and
         initial_intervals < n_i and
-        n_i > min_intervals):
-        # Use quantiles to bin x
+        n_i > min_intervals): 
+        # If a value smaller than n_i is passed to initial_intervals  
+        # and there are more unique values (n_i) than min_intervals,
+        # use quantiles to bin x
         boundaries = np.unique(
             np.quantile(x, np.arange(0, 1, 1/initial_intervals)[1:])
             ) # Add [1:] so that 0% persentile will not be a threshold
-        intervals, unique_intervals = assign_interval_unique(x, boundaries)
     else:
-        # Put each unique value of x in its own interval
+        # Otherwise treat each unique value of x as an interval
         boundaries = np.unique(x)
-        intervals, unique_intervals = assign_interval_unique(x, boundaries)     
-    # Return unique values as result if the # of unique x <= min_intervals
+
+    if decimal is not None:
+        boundaries = boundaries.round(decimal)
+
+    intervals, unique_intervals = assign_interval_unique(x, boundaries)
+    
+    # Return unique values as result if the number of unique x <= min_intervals
     if n_i <= min_intervals and output_boundary is False: 
         intervals_str = np.array(
             [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
                                                             intervals[:,1])])
-        return intervals_str
+        return intervals_str # output the discretized array
     elif n_i <= min_intervals and output_boundary is True: 
-        if len(np.unique(x))>1:
-            boundaries = np.unique(
-                np.concatenate((np.unique(x),
-                                np.array([float('inf')])), 
-                                axis=0))
-        else:
+        if n_i==1:
             boundaries = np.array([float('inf')])
+        return boundaries # output the unique upper boundaries of discretized array
     
-        return boundaries
+    # --------------------
     # Merging step
+    # --------------------
     if max_intervals is None:
         max_intervals = n_i
     threshold = chi2.ppf(confidence_level, n_j-1) # chi2 threshold
@@ -159,22 +171,22 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         ) 
     chi2_array = np.array([chi2_test(adj) for adj in adjacent_list]) 
 
-    # if unique_intervals.shape[0] <= min_intervals, stop the loop
-    # if min chi2 > threshold and # of unique_intervals<=max_intervals, 
-    # stop the loop  
+    # Merge the most similar intervals in each loop
+    # If unique_intervals.shape[0] <= min_intervals, stop the loop
+    # If minimum chi2 > threshold and the number of unique_intervals<=max_intervals, stop the loop  
     while (((chi2_array.min() <= threshold) or (unique_intervals.shape[0] > max_intervals)) and
            (unique_intervals.shape[0] > min_intervals)):
-        # identify the index of adjacent pair(s) with smallest chi2 score
+        
+        # Identify the index of adjacent pair(s) with smallest chi2 score
         index_adjacent_to_merge, = np.where(chi2_array==chi2_array.min()) 
-        # identify the interval (or intervals) with smallest chi2 score
+        # Identify the interval (or intervals) with smallest chi2 score
         i_merge = adjacent_index[index_adjacent_to_merge,:]
-
-        # merge the intervals for each selected pair
+        # Merge the intervals for each selected pair into a new interval
         new_interval = np.array(
             [(unique_intervals[:,0][unique_intervals[:,1] == index[0]][0],
               index[1]) for index in i_merge])
 
-        # delete selected intervals and add the merged intervals
+        # Delete selected intervals and add the merged intervals
         index_delete_merged = np.array(
             [np.where(unique_intervals[:,1]==e)[0][0] for e in i_merge.reshape(1,-1)[0]]
             )
@@ -193,10 +205,12 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         adjacent_index = np.array([pt_index[i:i+m] for i in range(len(pt_value)-m+1)]) 
         chi2_array = np.array([chi2_test(adj) for adj in adjacent_list])
     
-    if output_boundary:
+    if output_boundary:  
+        # Output the unique upper  boundaries of discretized array
         return unique_intervals[:,1]
     else:
-        # use join rather than use a+delimiter+b makes this line faster
+        # Output the discretized array
+        # Use join rather than use a+delimiter+b makes this line faster
         intervals_str = np.array(
             [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
                                                             intervals[:,1])]
@@ -245,7 +259,11 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         representated by string (i.e. '1~2'), which takes the form
         lower+delimiter+upper. This parameter control the symbol that
         connects the lower and upper boundaries.
-    
+
+    decimal: int,  optional(default=None)
+        Control the number of decimals of boundaries.
+        Default is None.
+
     output_boundary: boolean, optional(default=False)
         If output_boundary is set to True. This function will output the
         unique upper  boundaries of discretized array. If it is set to False,
@@ -281,13 +299,15 @@ class ChiMerge(BaseEstimator, TransformerMixin):
    
     def __init__(self, m=2, confidence_level=0.9, max_intervals=None, 
                     min_intervals=1, initial_intervals=100, 
-                    delimiter='~', output_dataframe=False):
+                    delimiter='~', decimal=None,
+                    output_dataframe=False):
         self.__m__ = m
         self.__confidence_level__ = confidence_level
         self.__max_intervals__ = max_intervals
         self.__min_intervals__ = min_intervals
         self.__initial_intervals__ = initial_intervals
         self.__delimiter__ = delimiter
+        self.__decimal__ = decimal
         self.__output_dataframe__ = output_dataframe
         self.fit_sample_size_ = None
         self.num_of_x_ = None
@@ -337,6 +357,7 @@ class ChiMerge(BaseEstimator, TransformerMixin):
                             , min_intervals=self.__min_intervals__
                             , initial_intervals=self.__initial_intervals__
                             , delimiter=self.__delimiter__
+                            , decimal=self.__decimal__
                             , output_boundary=True
                             ) for i in range(self.num_of_x_)]
         self.boundaries_ = dict(zip(self.columns_, boundary_list))
