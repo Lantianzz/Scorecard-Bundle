@@ -59,7 +59,7 @@ def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
     return result_selection
 
 def unstacked_corr_table(encoded_X,dict_iv):
-    """Identify the highly-correlated features pair that may cause colinearity problem.
+    """Return the unstacked correlation table to help analyze the colinearity problem.
 
     Parameters
     ----------
@@ -71,7 +71,7 @@ def unstacked_corr_table(encoded_X,dict_iv):
    
     Return
     ----------
-    corr_auto: pandas.DataFrame,
+    corr_unstack: pandas.DataFrame,
             The unstacked correlation table
 
     """

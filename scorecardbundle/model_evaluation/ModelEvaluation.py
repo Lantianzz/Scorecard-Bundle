@@ -32,7 +32,7 @@ font_title = {'family':'SimHei',
 
 
 # ============================================================
-# Basic Functions
+# Plot evaluation results
 # ============================================================
 
 # KS
@@ -295,9 +295,6 @@ def plot_all(y_true, y_pred_proba, output_path=None):
     plot_precision_recall(target, scores, output_path=output_path)
     plt.close()
 
-# ============================================================
-# Evaluation result plots
-# ============================================================
 class BinaryTargets():
     """Model evaluation for binary classification problem.
     
@@ -382,13 +379,13 @@ class BinaryTargets():
                         output_path=self.__output_path__)
 
 
-
 # ============================================================
+# Classification performance table
 # Thoroughly evaluate model's ranking power over the given event
 # ============================================================
 
 def pref_table(y_true,y_pred_proba,thresholds=None,rename_dict={}):
-    """Evaluate classification performance on differet levels of model scores (y_pred_proba).
+    """Evaluate the classification performance on differet levels of model scores (y_pred_proba).
     Useful for setting classification threshold based on requirements of precision and recall.
 
     Parameters

@@ -48,14 +48,35 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
   from scorecardbundle.feature_selection import FeatureSelection as fs
   from scorecardbundle.model_training import LogisticRegressionScoreCard as lrsc
   from scorecardbundle.model_evaluation import ModelEvaluation as me
+  from scorecardbundle.model_interpretation import ScorecardExplainer as mise
   ~~~
 
 ### Important Notice
 
-- [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). The next release will add proper error message for this rare error. 
-- [Fix] When using V1.0.2, songshijun007 brought up an issue about the raise of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been resolved and added to V1.1.0.  (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
+- [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). 
+- [Fix] When using V1.0.2, songshijun007 brought up an issue about the occuring of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been fixed from V1.1.0.  (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 ### Updates Log
+
+#### V1.2.0
+
+- feature_discretization:
+  - [Add] Add parameter `decimal` to class `ChiMerge.ChiMerge()`, which allows users to control the number of decimals of the feature interval boundaries.
+  - [Add] Add data table to the feature visualization `FeatureIntervalAdjustment.plot_event_dist()`. 
+  - [Add] Add function `FeatureIntervalAdjustment.feature_stat()` that computes the input feature's sample distribution, including the sample sizes, event sizes and event proportions of each feature value.
+
+- feature_selection.FeatureSelection:
+  - [Add] Add function `identify_colinear_features()` that identifies the highly-correlated features pair that may cause colinearity problem.
+  - [Add] Add function `unstacked_corr_table()`  that returns the unstacked correlation table to help analyze the colinearity problem.
+
+- model_training.LogisticRegressionScoreCard:
+  - [Fix] Alter the `LogisticRegressionScoreCard` class so that it now accepts all parameters of `sklearn.linear_model.LogisticRegression` and its `fit()` fucntion accepts all parameters of the `fit()` of `sklearn.linear_model.LogisticRegression` (including `sample_weight`)
+
+- model_evaluation.ModelEvaluation:
+  - [Add] Add function `pref_table`, which evaluates the classification performance on differet levels of model scores . This function is useful for setting classification threshold based on precision and recall.
+
+- model_interpretation:
+  - [Add] Add  function`ScorecardExplainer.important_features()`to help interpret the result of a individual instance. This function indentifies features who contribute the most in pusing the total score of a particular instance above a threshold. 
 
 #### V1.1.3
 
