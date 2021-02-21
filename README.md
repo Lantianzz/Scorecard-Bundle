@@ -31,6 +31,8 @@ A complete example showing how to build a scorecard with Scorecard-Bundle: [Exam
 
 See detailed and more reader-friendly documentation in **https://scorecard-bundle.bubu.blue/**
 
+In Scorecard-Bundle, core codes such as WOE/IV calculation and scorecard transformation were written based on Mamdouh Refaat's book '"Credit Risk Scorecards: Development and Implementation Using SAS"；ChiMerge was written based on Randy Kerber's paper "ChiMerge: Discretization of Numeric Attributes".
+
 ### Installment
 
 Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, and SciPy, which can be installed individually or together through [Anaconda](https://www.anaconda.com/)
@@ -104,6 +106,8 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
 展示如何训练评分卡模型的完整示例见[Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
 
 详细的、更友好的文档见**https://scorecard-bundle.bubu.blue/**
+
+Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑源自《信用风险评分卡研究 —基于SAS的开发与实施》一书，该书籍由王松奇和林治乾翻译自Mamdouh Refaat的"Credit Risk Scorecards: Development and Implementation Using SAS"；而ChiMerge算法则是复现了原作者Randy Kerber的论文"ChiMerge: Discretization of Numeric Attributes"。
 
 ### 安装
 
