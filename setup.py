@@ -3,19 +3,17 @@ import setuptools
 # with open("README.md", "r" , encoding='utf-8') as fh:
 #     long_description = fh.read()
 
+long_description = '''Scorecard-Bundle is a high-level Scorecard modeling API that is easy-to-use and Scikit-Learn consistent.  It covers the major steps to train a Scorecard model such as feature discretization with ChiMerge, WOE encoding, feature evaluation with information value and collinearity, Logistic-Regression-based Scorecard model, and model evaluation for binary classification tasks. All the transformer and model classes in Scorecard-Bundle comply with Scikit-Learn‘s fit-transform-predict convention.
 
+See detailed documentation in https://scorecard-bundle.bubu.blue/
 
-long_description = '''Scorecard-Bundle is a high-level Scorecard modeling API that is easy-to-use and Scikit-Learn consistent. 
-The transformer and model classes in Scorecard-Bundle comply with Scikit-Learn‘s fit-transform-predict 
-convention. So far it has covered the key steps in Scorecard modeling, including feature discretization,
-feature encoding, feature selection, model training and model evaluation. 
-See detailed document at https://github.com/Lantianzz/Scorecard-Bundle 
+See the source codes of this project in https://github.com/Lantianzz/Scorecard-Bundle
 '''
 setuptools.setup(
 	name="scorecardbundle",
-	version="1.1.3",
+	version="1.2.0",
 	author="Lantian ZHANG",
-	author_email="peter.lantian.zhang@outlook.com",
+	author_email="blue.zhanglt@outlook.com",
 	description="The python scorecard modeling library",
 	long_description=long_description,
 	long_description_content_type="text/markdown",

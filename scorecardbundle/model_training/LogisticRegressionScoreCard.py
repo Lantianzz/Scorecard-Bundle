@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Dec  9  12:03:43 2018
-Updated on Thu Dec  13 15:35:00 2018
+Training the logistic regression based Scorecard model.
 
-@author: Lantian ZHANG <peter.lantian.zhang@outlook.com>
-
-Python module for standard scorecard modeling 
+@author: Lantian ZHANG
 """
 
 from sklearn.linear_model import LogisticRegression
@@ -13,111 +10,14 @@ import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from ..utils.func_numpy import assign_interval_str
+from ..utils.func_numpy import interval_to_boundary_vector
+from ..utils.func_numpy import map_np
+
+
 # ============================================================
 # Basic Functions
 # ============================================================
-
-def _assign_interval_base(x, boundaries):
-    """Assign each value in x an interval from boundaries.
-    
-    Parameters
-    ----------
-    x: numpy.array, shape (number of examples,)
-        The column of data that need to be discretized.
-    
-    boundaries: numpy.array, shape (number of interval boundaries,)
-        The boundary values of the intervals to discretize target x. 
-    
-    Returns
-    -------
-    intervals: numpy.ndarray, shape (number of examples,2)
-        The array of intervals that are closed to the right. 
-        The left column and right column of the array are the 
-        left and right boundary respectively.
-    """    
-    # Add -inf and inf to the start and end of boundaries
-    boundaries = np.unique(
-        np.concatenate((np.array([-float('inf')]),
-                        boundaries,np.array([float('inf')])), 
-                        axis=0))
-    # The max boundary that is smaller than x_i is its lower boundary.
-    # The min boundary that is >= than x_i is its upper boundary. 
-    # Adding equal is because all intervals here are closed to the right.
-    boundaries_diff_boolean = x.reshape(1,-1).T > boundaries.reshape(1,-1) 
-    lowers = [boundaries[b].max() for b in boundaries_diff_boolean] 
-    uppers = [boundaries[b].min() for b in ~boundaries_diff_boolean] 
-    # Array of intervals that are closed to the right
-    intervals= np.stack((lowers, uppers), axis=1) 
-    return intervals
-
-def assign_interval_str(x, boundaries, delimiter='~'):
-    """Assign each value in x an interval from boundaries.
-    
-    Parameters
-    ----------
-    x: numpy.array, shape (number of examples,)
-        The column of data that need to be discretized.
-    
-    boundaries: numpy.array, shape (number of interval boundaries,)
-        The boundary values of the intervals to discretize target x. 
-
-    delimiter: string, optional(default='~')
-        The returned array will be an array of intervals. Each interval is 
-        representated by string (i.e. '1~2'), which takes the form 
-        lower+delimiter+upper. This parameter control the symbol that 
-        connects the lower and upper boundaries.
-    Returns
-    -------
-    intervals_str: numpy.array, shape (number of examples,)
-        Discretized result. The array of intervals that represented by strings. 
-    """
-    intervals= _assign_interval_base(x, boundaries)
-    # use join rather than use a+delimiter+b makes this line faster
-    intervals_str = np.array(
-        [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
-                                                        intervals[:,1])]
-        )
-    return intervals_str
-
-def interval_to_boundary_vector(vector, delimiter='~'):
-    """Transform an array of interval strings into the 
-    unique boundaries of such intervals.
-    
-    Parameters
-    ----------
-    vector: numpy.array, shape (number of examples,)
-        The array of interval whose unique boundaries will 
-        be returned.
-
-    delimiter: string, optional(default='~')
-        The interval is representated by string (i.e. '1~2'), 
-        which takes the form lower+delimiter+upper. This parameter 
-        control the symbol that connects the lower and upper boundaries.    
-    Returns
-    -------
-    boundaries: numpy.array, shape (number of interval boundaries,)
-        An array of boundary values.
-    """
-    boundaries = np.array(list(set(delimiter.join(np.unique(vector)).split(delimiter))))
-    boundaries = boundaries[(boundaries!='-inf') & (boundaries!='inf')].astype(float)
-    return boundaries
-
-def map_np(array, dictionary):
-    """map function for numpy array
-    Parameters
-    ----------
-    array: numpy.array, shape (number of examples,)
-            The array of data to map values to.
-    
-    distionary: dict
-            The distionary object.
-
-    Return
-    ----------
-    result: numpy.array, shape (number of examples,)
-            The mapped result.         
-    """
-    return [dictionary[e] for e in array]
 
 def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
     """Apply the scorecard to a column. Return the score for each value.
@@ -180,6 +80,11 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     basePoints: int,  optional(default=100)
         the score for base odds(# of y=1/ # of y=0).
 
+    baseOdds: float, optional(default=None)
+        The ratio of the number of positive class(y=1) divided by that of negative class(y=0)
+        Leave this parameter to None means baseOdds will be automatically calculated
+        using the number of positive class divided by the number of negative class in y.
+
     decimal: int,  optional(default=0)
         Control the number of decimals that the output scores have.
         Default is 0 (no decimal).
@@ -207,17 +112,30 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     delimiter: string, optional(default='~')
         The feature interval is representated by string (i.e. '1~2'), 
         which takes the form lower+delimiter+upper. This parameter 
-        is the symbol that connects the lower and upper boundaries.
+        is the symbol that connects the lower and upper boundaries..
+
+    **kargs: other keyword arguments in sklearn.linear_model.LogisticRegression()
     
     Attributes
     ---------- 
-    woe_df_: pandas.DataFrame, the scorecard.
+    woe_df_: pandas.DataFrame, the Scorecard scoring rules.
+            The table contains 5 columns (feature, value, woe, beta and score). 
+            - 'feature' column: feature names
+            - 'value' column: feature intervals (right-closed)
+            - 'woe' column: WOE encodings of feature intervals
+            - 'score' column: the score for the feature interval respectively
+
+            An example would be as followed,
+            feature value   woe         beta        score
+            x1      30~inf  0.377563    0.631033    5.0
+            x1      20~-30  1.351546    0.631033    37.0
+            x1      -inf~20 1.629890    0.631033    -17.0
     
     AB_ : A and B when converting regression to scorecard.
 
     Methods
     -------
-    fit(woed_X, y): 
+    fit(woed_X, y,**kargs): 
             fit the Scorecard model.
 
     predict(X_beforeWOE, load_scorecard=None): 
@@ -237,10 +155,11 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     
     """     
     
-    def __init__(self, woe_transformer, C=1, class_weight=None, random_state=None,
-                 PDO=-20, basePoints = 100, decimal=0, start_points = False,
+    def __init__(self, woe_transformer, C=1, class_weight=None, 
+                 PDO=-20, basePoints = 100, baseOdds=None,
+                 decimal=0, start_points = False,
                  output_option='excel', output_path=None, verbose=False, 
-                 delimiter='~'):
+                 delimiter='~', random_state=None, **kargs):
         
         self.__woe_transformer__ = woe_transformer
         self.__C__ = C
@@ -254,19 +173,23 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         self.__start_points__ = start_points
         self.__verbose__ = verbose
         self.__delimiter__ = delimiter
+        self.__baseOdds__ = baseOdds
         self.fit_sample_size_ = None
         self.num_of_x_ = None
         self.columns_ = None
-        self.__baseOdds__ = None
         self.__p__ = None
         self.AB_ = None
         self.woe_df_ = None
         self.startPoints_ = None
-        self.lr_ = None
         self.transform_sample_size_ = None
+        self.lr_ = LogisticRegression(C=C
+                                ,class_weight=class_weight
+                                ,random_state=random_state
+                                , **kargs
+                                )
         
     
-    def fit(self, woed_X, y):
+    def fit(self, woed_X, y, **kargs):
         """
         Parameters
         ----------
@@ -276,6 +199,9 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         
         y: numpy.array or pandas.Series, shape (number of examples,)
             The target array (or dependent variable).
+
+        **kargs: other keyword arguments in the fit()
+            of sklearn.linear_model.LogisticRegression
         """ 
 
         # if X is pandas.DataFrame, turn it into numpy.ndarray and 
@@ -302,7 +228,8 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
 
         # Basic settings of Scorecard
         positive, total = y.sum(), y.shape[0]   
-        self.__baseOdds__ = positive / (total - positive) 
+        if self.__baseOdds__ is None:
+            self.__baseOdds__ = positive / (total - positive) 
         self.__p__ = self.__baseOdds__  / (1 + self.__baseOdds__)
         B = self.__PDO__/np.log(2)
         A = self.__basePoints__ + B * np.log(self.__baseOdds__)
@@ -318,16 +245,13 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
                                  ).rename(columns={0:'feature',1:'value',2:'woe'})
 
         # Fit a logistic regression
-        lr = LogisticRegression(C=self.__C__, 
-                                class_weight=self.__class_weight__,
-                                random_state=self.__random_state__)
-        lr.fit(features, y)
+        self.lr_.fit(features, y,**kargs)
         
         # Calculate scores for each value in each feature, and the start scores
         beta_map = dict(zip(list(self.columns_), 
-                            lr.coef_[0,:]))
+                            self.lr_.coef_[0,:]))
         self.woe_df_['beta'] = map_np(self.woe_df_.feature, beta_map)
-        self.startPoints_ = A - B * lr.intercept_[0]    
+        self.startPoints_ = A - B * self.lr_.intercept_[0]    
         
         # Rule table for Scoracard
         if self.__start_points__ is True:
@@ -354,7 +278,6 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
             self.woe_df_.to_excel('scorecards.xlsx', index=False)
         elif self.__output_option__ == 'excel' and self.__output_path__ is not None:
             self.woe_df_.to_excel(self.__output_path__+'scorecards.xlsx', index=False)
-        self.lr_ = lr
 
     def predict(self, X_beforeWOE, load_scorecard=None):
         """Apply the scorecard.

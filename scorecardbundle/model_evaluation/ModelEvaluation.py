@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Dec 12 2018
-Updated on Sat Aug 11 2019
-@authors: Lantian ZHANG <peter.lantian.zhang@outlook.com>
+Model evaluation for binary classification task.
 
-Model evaluation
+@authors: Lantian ZHANG
 """
 
 import pandas as pd
 import scipy
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve
+from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve,average_precision_score
 import numpy as np
 
 # Global settings for matplotlib
@@ -34,7 +32,7 @@ font_title = {'family':'SimHei',
 
 
 # ============================================================
-# Basic Functions
+# Plot evaluation results
 # ============================================================
 
 # KS
@@ -61,6 +59,7 @@ def ks_stat(y_true, y_pred_proba):
     """
     ks = scipy.stats.ks_2samp(y_pred_proba[y_true==1], y_pred_proba[y_true!=1]).statistic
     return ks
+
 def plot_ks(y_true, y_pred_proba, output_path=None):
     """Plot K-S curve of a model
     Parameters
@@ -378,4 +377,78 @@ class BinaryTargets():
     def plot_all(self):
         return plot_all(self.__y_true__, self.__y_pred_proba__, 
                         output_path=self.__output_path__)
+
+
+# ============================================================
+# Classification performance table
+# Thoroughly evaluate model's ranking power over the given event
+# ============================================================
+
+def pref_table(y_true,y_pred_proba,thresholds=None,rename_dict={}):
+    """Evaluate the classification performance on differet levels of model scores (y_pred_proba).
+    Useful for setting classification threshold based on requirements of precision and recall.
+
+    Parameters
+    ----------
+    y_true: numpy.array, shape (number of examples,)
+            The target column (or dependent variable).  
+    
+    y_pred_proba: numpy.array, shape (number of examples,)
+            The score or probability output by the model. The probability
+            of y_true being 1 should increase as this value
+            increases.
+
+            If Scorecard model's parameter "PDO" is negative, then the higher the 
+            model scores, the higher the probability of y_pred being 1. This Function
+            works fine. 
+
+            However!!! if the parameter "PDO" is positive, then the higher 
+            the model scores, the lower the probability of y_pred being 1. In this case,
+            just put a negative sign before the scores array and pass `-scores` as parameter
+            y_pred_proba of this function.   
+    
+    thresholds: iterable. Can be list, numpy.array, etc.
+            The thresholds used to turn model scores into groups so that each group's
+            performance can be evaluated.
+    
+    rename_dict: python dictionary.
+            A dictionary that maps the column names of the returned table to user-defined names.
+            Use this parameter to change the name of the returned table.
+            For example, inputing {'cum_f1':'cumulated_f1_score'} would rename the column 'cum_f1'
+            of the returned table as 'cumulated_f1_score'
+    
+    Returns
+    ---------- 
+    stat: pandas.DataFrame.
+        The classification performance table
+    """
+    # Print AUC and AP
+    print(f'roc_auc_score={roc_auc_score(y_true, y_pred_proba)}')
+    print(f'AP={average_precision_score(y_true, y_pred_proba)}')
+
+    # Result dataframe
+    res = pd.DataFrame({
+        'y_true':y_true
+        ,'y_pred_proba':y_pred_proba
+    })
+
+    # Define the thresholds to bin model scores into different groups
+    if thresholds is None: # Default thresholds
+        thresholds = [-float('inf')]+list(np.concatenate([np.arange(1,10,1)/1000,np.arange(1,100,1)/100],axis=0))+[float('inf')]
+    else: # User-defined thresholds
+        thresholds = sorted(list(set([-float('inf')]+list(thresholds)+[float('inf')])))
+    res['y_pred_group'] = pd.cut(res['y_pred_proba'].values,thresholds)   
+    
+    # Classification performance on each score interval
+    stat = res.groupby('y_pred_group')['y_true'].sum().reset_index().rename(columns={'y_true':'event_num'})
+    stat['sample_size']  = res.groupby('y_pred_group')['y_true'].size().values
+    stat.sort_values('y_pred_group',ascending=False,inplace=True) # The higher the scores, the higher the probability of y_pred being 1
+    stat['cum_event_num'] = stat['event_num'].cumsum()
+    stat['cum_sample_size'] = stat['sample_size'].cumsum()
+    stat['cum_sample_pct'] = stat['cum_sample_size']/stat['sample_size'].sum()
+    stat['cum_precision'] = stat['cum_event_num']/stat['cum_sample_size']
+    stat['cum_recal'] = stat['cum_event_num']/stat['event_num'].sum()
+    stat['cum_f1'] = 2/(1/stat['cum_precision']+1/stat['cum_recal'])
+    
+    return stat.rename(columns=rename_dict) # Allow renameing the output table
 
