@@ -149,7 +149,7 @@ Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑�
 
 - 模型训练 model_training.LogisticRegressionScoreCard:
   - [Fix] 优化`LogisticRegressionScoreCard` class ，使其可接受`sklearn.linear_model.LogisticRegression`的任意参数、且其`fit()`函数可接受`sklearn.linear_model.LogisticRegression`的fit()函数的任意参数 (包括 `sample_weight`)
-- [Add] 为`LogisticRegressionScoreCard`添加参数`baseOdds` . 这允许用户传入自定义的base odds (# of y=1 / # of y=0)
+  - [Add] 为`LogisticRegressionScoreCard`添加参数`baseOdds` . 这允许用户传入自定义的base odds (# of y=1 / # of y=0)
   
 - 模型评估 model_evaluation.ModelEvaluation:
   - [Add] 添加函数 `pref_table`, 用于评估不同水平的模型分数的分类表现（精确度、召回率、F1、样本比例等）。此函数可帮助用户基于分类表现选择分类阈值；
