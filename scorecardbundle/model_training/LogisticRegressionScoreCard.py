@@ -80,6 +80,11 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     basePoints: int,  optional(default=100)
         the score for base odds(# of y=1/ # of y=0).
 
+    baseOdds: float, optional(default=None)
+        The ratio of the number of positive class(y=1) divided by that of negative class(y=0)
+        Leave this parameter to None means baseOdds will be automatically calculated
+        using the number of positive class divided by the number of negative class in y.
+
     decimal: int,  optional(default=0)
         Control the number of decimals that the output scores have.
         Default is 0 (no decimal).
@@ -150,10 +155,11 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     
     """     
     
-    def __init__(self, woe_transformer, C=1, class_weight=None, random_state=None,
-                 PDO=-20, basePoints = 100, decimal=0, start_points = False,
+    def __init__(self, woe_transformer, C=1, class_weight=None, 
+                 PDO=-20, basePoints = 100, baseOdds=None,
+                 decimal=0, start_points = False,
                  output_option='excel', output_path=None, verbose=False, 
-                 delimiter='~', **kargs):
+                 delimiter='~', random_state=None, **kargs):
         
         self.__woe_transformer__ = woe_transformer
         self.__C__ = C
@@ -167,10 +173,10 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         self.__start_points__ = start_points
         self.__verbose__ = verbose
         self.__delimiter__ = delimiter
+        self.__baseOdds__ = baseOdds
         self.fit_sample_size_ = None
         self.num_of_x_ = None
         self.columns_ = None
-        self.__baseOdds__ = None
         self.__p__ = None
         self.AB_ = None
         self.woe_df_ = None
@@ -222,7 +228,8 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
 
         # Basic settings of Scorecard
         positive, total = y.sum(), y.shape[0]   
-        self.__baseOdds__ = positive / (total - positive) 
+        if self.__baseOdds__ is None:
+            self.__baseOdds__ = positive / (total - positive) 
         self.__p__ = self.__baseOdds__  / (1 + self.__baseOdds__)
         B = self.__PDO__/np.log(2)
         A = self.__basePoints__ + B * np.log(self.__baseOdds__)
