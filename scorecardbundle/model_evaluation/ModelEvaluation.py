@@ -416,6 +416,11 @@ def pref_table(y_true,y_pred_proba,thresholds=None,rename_dict={}):
             Use this parameter to change the name of the returned table.
             For example, inputing {'cum_f1':'cumulated_f1_score'} would rename the column 'cum_f1'
             of the returned table as 'cumulated_f1_score'
+    
+    Returns
+    ---------- 
+    stat: pandas.DataFrame.
+        The classification performance table
     """
     # Print AUC and AP
     print(f'roc_auc_score={roc_auc_score(y_true, y_pred_proba)}')

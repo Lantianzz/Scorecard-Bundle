@@ -49,6 +49,7 @@ def feature_stat(x,y,delimiter='~'):
     x: numpy.array, shape (number of examples,)
         The discretizated feature array. Each value represent a right-closed interval
         of the input feature. e.g. '1~8'
+    
     y: numpy.array, shape (number of examples,)
         The binary dependent variable with 1 represents the target event (positive class).
 
@@ -82,6 +83,7 @@ def feature_stat_str(x, y, delimiter='~', n_lines=40, width=20):
     x: numpy.array, shape (number of examples,)
         The discretizated feature array. Each value represent a right-closed interval
         of the input feature. e.g. '1~8'
+    
     y: numpy.array, shape (number of examples,)
         The binary dependent variable with 1 represents the target event (positive class).
 

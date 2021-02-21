@@ -66,16 +66,19 @@ def _instance_top_features(scores,feature_names,n):
     return ifeatures
 
 def important_features(scored_df,feature_names,col_totalscore='TotalScore',threshold_method=0.8, bins=None):
-    """Indentify features who contribute the most in pusing the total score above a threshold.
+    """Identify features who contribute the most in pushing the total score above a threshold.
     
     Parameters
     ----------
     scored_df: pandas.DataFrame, shape (number of instances,number of features)
         The dataframe that contains the both each feature's scores and total scores 
+    
     feature_names: python list
         The names of features 
+    
     col_totalscore: python string
         The name of the total score column. Default is 'TotalScore'
+    
     threshold_method: float in (0,1) or string 'bins' or integer in [1,number of features].
         The method to get the thresholds to filter importance features. Default is 0.8
         
@@ -94,6 +97,7 @@ def important_features(scored_df,feature_names,col_totalscore='TotalScore',thres
     bins: numpy.array, shape (number of bins,).
         The predefined bins to bin the total score into intervals. This parameter is only used when
         threshold_method=='bins'. Default is None.
+    
     Returns
     -------
     ifeatures_list: python list.
