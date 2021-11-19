@@ -11,7 +11,7 @@ See the source codes of this project in https://github.com/Lantianzz/Scorecard-B
 '''
 setuptools.setup(
 	name="scorecardbundle",
-	version="1.2.0",
+	version="1.2.1",
 	author="Lantian ZHANG",
 	author_email="blue.zhanglt@outlook.com",
 	description="The python scorecard modeling library",

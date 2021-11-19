@@ -8,7 +8,7 @@ Model evaluation for binary classification task.
 import pandas as pd
 import scipy
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve,average_precision_score
+from sklearn.metrics import precision_recall_curve, roc_auc_score, roc_curve, average_precision_score
 import numpy as np
 
 # Global settings for matplotlib
@@ -59,6 +59,7 @@ def ks_stat(y_true, y_pred_proba):
     """
     ks = scipy.stats.ks_2samp(y_pred_proba[y_true==1], y_pred_proba[y_true!=1]).statistic
     return ks
+
 
 def plot_ks(y_true, y_pred_proba, output_path=None):
     """Plot K-S curve of a model
@@ -134,7 +135,8 @@ def plot_ks(y_true, y_pred_proba, output_path=None):
     if output_path is not None:
         plt.savefig(output_path+r'K-S_Curve.png', dpi=500, bbox_inches='tight')    
     plt.show()
-        
+
+
 # ROC curve
 def plot_roc(y_true, y_pred_proba, output_path=None):
     """Plot ROC curve. Credit to Aurélien Géron's book
@@ -194,6 +196,7 @@ def plot_roc(y_true, y_pred_proba, output_path=None):
         plt.savefig(output_path+r'ROC_Curve.png',dpi=500,bbox_inches='tight')
     plt.show()
 
+
 # Precision vs Recall
 def plot_precision_recall(y_true, y_pred_proba, output_path=None):
     """precision and recall curves. Credit to Aurélien Géron's book
@@ -249,6 +252,7 @@ def plot_precision_recall(y_true, y_pred_proba, output_path=None):
         plt.savefig(output_path+r'Precision_Recall_Curve.png',dpi=500,bbox_inches='tight')
     plt.show()
 
+
 def plot_all(y_true, y_pred_proba, output_path=None):
     """Output all plots to evaluate binary classification.
     
@@ -294,6 +298,7 @@ def plot_all(y_true, y_pred_proba, output_path=None):
     plt.close()
     plot_precision_recall(target, scores, output_path=output_path)
     plt.close()
+
 
 class BinaryTargets():
     """Model evaluation for binary classification problem.

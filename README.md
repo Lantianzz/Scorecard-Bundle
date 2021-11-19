@@ -39,6 +39,14 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
 
 - Pip: Scorecard-Bundle can be installed with pip:  `pip install --upgrade scorecardbundle` 
 
+  ！**Note that the latest version may be not available at some pip mirror site** (e.g. *https://mirrors.aliyun.com/pypi/simple/*). Therefore in order to update to the latest version,  use the following command to specify the source as *https://pypi.org/project*
+
+  ~~~bash
+  pip install -i https://pypi.org/project --upgrade scorecardbundle
+  ~~~
+
+  
+
 - Manually: Download codes from github `<https://github.com/Lantianzz/Scorecard-Bundle>` and import them directly:
 
   ~~~python
@@ -55,10 +63,26 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
 
 ### Important Notice
 
-- [Future Fix] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). 
+- [Fix] 2 rare but critical bugs has been fixed from V1.2.1. Therefore I strongly advised anyone who uses Scorecard-bundle to update their older versions. See details of the bugs in the updates log for V1.2.1.  Thanks to @ zeyunH for bring one of the bugs to me.
+- [Notice] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). 
 - [Fix] When using V1.0.2, songshijun007 brought up an issue about the occuring of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been fixed from V1.1.0.  (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 ### Updates Log
+
+#### V1.2.1
+
+This is an emergency update to fix 2 related bugs that may be triggered in rare cases but are hard to debug for someone who is not familiar with the codes. Thanks to @ zeyunH for bring one of the bugs to me.
+
+- feature_discretization:
+  - [Fix] Add parameter `force_inf` to `scorecardbundle/utils/func_numpy.py/_assign_interval_base(), assign_interval_unique(), assign_interval_str()`
+    - This parameter controls Whether to force the largest interval's right boundary to be positive infinity. Default is True.
+    - In the case when an upper boundary is not smaller then the maximum value, the largest interval output will be (xxx, upper]. In tasks like fitting ChiMerge where the output intervals are supposed to cover the entire value space (-inf ~ inf), this parameter `force_inf` should be set to True so that the largest interval will be overwritten from (xxx, upper] to (xxx, inf]. In other words, the previous upper boundary value is abandoned.
+    - However when merely applying given boundaries, the output intervals should be exactly where the values belong according to the given boundaries and does not have to cover the entire value space. Users may only pass in a few values to transform into intervals, forcing the largest interval to have inf may generate intervals that did not exist.
+    - Therefore, set `force_inf=True` when fitting ChiMerge; Set `force_inf=False` when calling ChiMerge transform or Scorecard predict.
+  - [Fix] When generating intervals with `_assign_interval_base` in ChiMerge `fit()`,  the largest interval will be overwritten from (xxx, upper] to (xxx, inf] to cover the entire value range. However, previously the codes only perform this when the upper boundary (one of the given thresholds) is equal to the maximum value of the data, while in practive the upper boundary may be larger due to rounding (e.g. the max value is 3.14159 and the threshold happend to choose this value and rounded up to 3.1316 due to the `decimal` parameter of ChiMerge). From V1.2.1, the condition has been changed to `>=` 
+- model_training.LogisticRegressionScoreCard:
+  - [Fix] Set `force_inf=False` in function `assign_interval_str` when calling Scorecard predict();
+  - [Add] Add a sanity check against the Scorecard rules on the `X_beforeWOE` parameter of `LogisticRegressionScoreCard.predict()` . In the case when the Scorecard rules have features which are not in the passed features data, or the passed features data has features which are not in the Scorecard rules, an exception will be raised.
 
 #### V1.2.0
 
@@ -115,6 +139,14 @@ Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑�
 
 - Pip: Scorecard-Bundle可使用pip安装:  `pip install --upgrade scorecardbundle` 
 
+  注意！**最新版本可能尚未被纳入一些镜像源网站** (e.g. *https://mirrors.aliyun.com/pypi/simple/*)。因此为了更新到最新版本，可以使用下面的命令，指定 *https://pypi.org/project*作为源
+
+  ~~~bash
+  pip install -i https://pypi.org/project --upgrade scorecardbundle
+  ~~~
+
+  
+
 - 手动: 从Github下载代码`<https://github.com/Lantianzz/Scorecard-Bundle>`， 直接导入:
 
   ```python
@@ -131,10 +163,26 @@ Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑�
 
 ### 重要公告
 
-- [Future Fix] WOE和ChiMerge模块的几处代码（例如WOE模块的woe_vector函数）中，利用向量外积获得两个向量间的boolean mask矩阵，当输入的特征具有较多的唯一值时，可能会导致计算此外积的时候内存溢出（e.g. 样本量35万、唯一值1万个的特征，已在8G内存的电脑上计算WOE会内存溢出），此时的报错信息未必是内存溢出，给用户debug造成困难（当前的报错信息可能是`TypeError: 'bool' object is not iterable`或`DeprecationWarning:  elementwise comparison failed`）；
+- [Fix] 从V1.2.1开始修复了两处罕见但重要的bug，因此强烈建议Scorecard-bundle的用户更新旧版本的代码。bug的细节请见V1.2.1的更新日志；感谢@ zeyunH 指出其中的一个bug；
+- [Notice] WOE和ChiMerge模块的几处代码（例如WOE模块的woe_vector函数）中，利用向量外积获得两个向量间的boolean mask矩阵，当输入的特征具有较多的唯一值时，可能会导致计算此外积的时候内存溢出（e.g. 样本量35万、唯一值1万个的特征，已在8G内存的电脑上计算WOE会内存溢出），此时的报错信息未必是内存溢出，给用户debug造成困难（当前的报错信息可能是`TypeError: 'bool' object is not iterable`或`DeprecationWarning:  elementwise comparison failed`）；
 - [Fix] 在使用V1.0.2版本时，songshijun007 在issue中提到当测试集存在比训练集更大的特征值时会造成KeyError。这处bug已被解决，自V1.1.0版本起已修复（issue链接https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 ### 更新日志
+
+#### V1.2.1
+
+为了修复两处罕见的bug而紧急发布V1.2.1版本。下面的bug对于不熟悉代码的用户较难排查。感谢@ zeyunH 指出其中的一个bug
+
+- 特征离散化feature_discretization:
+  - [Fix]添加参数 `force_inf` 到函数 `scorecardbundle/utils/func_numpy.py/_assign_interval_base(), assign_interval_unique(), assign_interval_str()`
+    - 此参数控制是否会强制最大的区间的右侧边界为正无穷，默认为True
+    - 当最大区间的右侧边界不小于数据的最大值时，最大的区间原本是(xxx, upper]. 对于fit ChiMerge这样需要输出的区间覆盖整个值域(-inf ~ inf)的任务而言，这个参数应该被设为True，使得最大区间被从 (xxx, upper] 改为(xxx, inf]，即原有的右侧边界这个阈值被弃用了
+    - 然而，当仅仅在应用已知的阈值时，输出的区间应该只有数值所处的位置决定，此时若对最大区间进行调整，可能会导致出现于原阈值不符的区间
+    - 因此，在fit ChiMerge时使用`force_inf=True`，在用ChiMerge做transform操作、或使用评分卡的predict()时，使用`force_inf=False`
+  - [Fix] 当在 ChiMerge `fit()`中使用`_assign_interval_base`生成区间时，会对最大区间进行调整，使其右侧边界变为正无穷。旧版代码只会在区间的右侧边界等于数据最大值时作调整，然而实践中可能出现四舍五入导致的右侧边界大于最大值的情况 (e.g. 最大值为3.14159 ，而右侧边界正好选中了这个值且由于ChiMerge的`decimal`参数四舍五入到了3.1316)。因此从V1.2.1开始，生效的条件被改为了`>=` 
+- 模型训练 model_training.LogisticRegressionScoreCard:
+  - [Fix] predict()中为函数`assign_interval_str` 设置`force_inf=False`
+  - [Add] 添加了对传入的特征数据`X_beforeWOE` 的检查，当评分规则中存在特征数据没有的特征、或特征数据中存在评分规则没有的特征时，会抛出异常
 
 #### V1.2.0
 

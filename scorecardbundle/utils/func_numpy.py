@@ -5,7 +5,7 @@ import numpy as np
 # ============================================================
 
 
-def _assign_interval_base(x, boundaries):
+def _assign_interval_base(x, boundaries, force_inf=True):
     """Assign each value in x an interval from boundaries.
     
     Parameters
@@ -14,7 +14,25 @@ def _assign_interval_base(x, boundaries):
         The column of data that need to be discretized.
     
     boundaries: numpy.array, shape (number of interval boundaries,)
-        The boundary values of the intervals to discretize target x. 
+        The boundary values of the intervals to discretize target x.
+
+    force_inf: bool. Whether to force the largest interval's
+        right boundary to be positive infinity. Default is True.
+
+        In the case when the upper boundary is not smaller then the maximum value,
+        the largest interval output will be (xxx, upper].
+
+        In tasks like fitting ChiMerge where the output intervals are supposed to
+        cover the entire value space (-inf ~ inf), this parameter `force_inf`
+        should be set to True so that the largest interval will be
+        overwritten from (xxx, upper] to (xxx, inf]. In other words, the previous
+        upper boundary value is abandoned.
+
+        However when merely applying given boundaries, the output intervals should be
+        exactly where the values belong according to the given boundaries and does not
+        have to cover the entire value space. Users may only pass in a few values
+        to transform into intervals, forcing the largest interval to have inf may generate
+        intervals that did not exist.
     
     Returns
     -------
@@ -35,15 +53,18 @@ def _assign_interval_base(x, boundaries):
     boundaries_diff_boolean = x.reshape(1,-1).T > boundaries.reshape(1,-1) 
     lowers = np.array([boundaries[b].max() for b in boundaries_diff_boolean])
     uppers = np.array([boundaries[b].min() for b in ~boundaries_diff_boolean])
-    
-    # Replace the upper value with inf if the value equals the maximum feature value
+
+    # If force_inf is True
+    # Replace the upper value with inf if it is not smaller then the maximum feature value
     n = x.shape[0]
-    uppers = np.where(uppers==max_value,[float('inf')]*n,uppers) 
+    if force_inf:
+        uppers = np.where(uppers>=max_value,[float('inf')]*n,uppers)
     # Array of intervals that are closed to the right
     intervals= np.stack((lowers, uppers), axis=1) 
     return intervals
 
-def assign_interval_unique(x, boundaries):
+
+def assign_interval_unique(x, boundaries, force_inf=True):
     """Assign each value in x an interval from boundaries.
     
     Parameters
@@ -53,7 +74,25 @@ def assign_interval_unique(x, boundaries):
     
     boundaries: numpy.array, shape (number of interval boundaries,)
         The boundary values of the intervals to discretize target x. 
-    
+
+    force_inf: bool. Whether to force the largest interval's
+        right boundary to be positive infinity. Default is True.
+
+        In the case when the upper boundary is not smaller then the maximum value,
+        the largest interval output will be (xxx, upper].
+
+        In tasks like fitting ChiMerge where the output intervals are supposed to
+        cover the entire value space (-inf ~ inf), this parameter `force_inf`
+        should be set to True so that the largest interval will be
+        overwritten from (xxx, upper] to (xxx, inf]. In other words, the previous
+        upper boundary value is abandoned.
+
+        However when merely applying given boundaries, the output intervals should be
+        exactly where the values belong according to the given boundaries and does not
+        have to cover the entire value space. Users may only pass in a few values
+        to transform into intervals, forcing the largest interval to have inf may generate
+        intervals that did not exist.
+
     Returns
     -------
     intervals: numpy.ndarray, shape (number of examples,2)
@@ -66,11 +105,12 @@ def assign_interval_unique(x, boundaries):
         The left column and right column of the array are the
         left and right boundary respectively.  
     """
-    intervals= _assign_interval_base(x, boundaries)
+    intervals= _assign_interval_base(x, boundaries, force_inf=force_inf)
     unique_intervals = np.unique(intervals, axis=0)
     return intervals, unique_intervals
 
-def assign_interval_str(x, boundaries, delimiter='~'):
+
+def assign_interval_str(x, boundaries, delimiter='~', force_inf=True):
     """Assign each value in x an interval from boundaries.
     
     Parameters
@@ -86,18 +126,38 @@ def assign_interval_str(x, boundaries, delimiter='~'):
         representated by string (i.e. '1~2'), which takes the form
         lower+delimiter+upper. This parameter control the symbol that
         connects the lower and upper boundaries.
+
+    force_inf: bool. Whether to force the largest interval's
+        right boundary to be positive infinity. Default is True.
+
+        In the case when the upper boundary is not smaller then the maximum value,
+        the largest interval output will be (xxx, upper].
+
+        In tasks like fitting ChiMerge where the output intervals are supposed to
+        cover the entire value space (-inf ~ inf), this parameter `force_inf`
+        should be set to True so that the largest interval will be
+        overwritten from (xxx, upper] to (xxx, inf]. In other words, the previous
+        upper boundary value is abandoned.
+
+        However when merely applying given boundaries, the output intervals should be
+        exactly where the values belong according to the given boundaries and does not
+        have to cover the entire value space. Users may only pass in a few values
+        to transform into intervals, forcing the largest interval to have inf may generate
+        intervals that did not exist.
+
     Returns
     -------
     intervals_str: numpy.array, shape (number of examples,)
         Discretized result. The array of intervals that represented by strings. 
     """
-    intervals= _assign_interval_base(x, boundaries)
+    intervals= _assign_interval_base(x, boundaries, force_inf=force_inf)
     # use join rather than use a+delimiter+b makes this line faster
     intervals_str = np.array(
         [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
                                                         intervals[:,1])]
         )
     return intervals_str
+
 
 def pivot_table_np(index, column):
     """Perform cross-tabulation to index vector and column vector.
@@ -152,6 +212,7 @@ def pivot_table_np(index, column):
         )
     return pivot_table, column_unique, index_unique
 
+
 def interval_to_boundary_vector(vector, delimiter='~'):
     """Transform an array of interval strings into the
     unique boundaries of such intervals.
@@ -174,6 +235,7 @@ def interval_to_boundary_vector(vector, delimiter='~'):
     boundaries = np.array(list(set(delimiter.join(np.unique(vector)).split(delimiter))))
     boundaries = boundaries[(boundaries!='-inf') & (boundaries!='inf')].astype(float)
     return boundaries
+
 
 def map_np(array, dictionary):
     """map function for numpy array

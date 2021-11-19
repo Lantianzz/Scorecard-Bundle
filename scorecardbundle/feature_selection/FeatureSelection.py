@@ -6,6 +6,7 @@
 import pandas as pd
 import numpy as np
 
+
 def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
     """Retrun a table of each feature' IV and their highly correlated
     features to help users select features.
@@ -58,6 +59,7 @@ def selection_with_iv_corr(trans_woe, encoded_X, threshold_corr=0.6):
         ) for mask,col in corr_mask]
     return result_selection
 
+
 def unstacked_corr_table(encoded_X,dict_iv):
     """Return the unstacked correlation table to help analyze the colinearity problem.
 
@@ -91,6 +93,7 @@ def unstacked_corr_table(encoded_X,dict_iv):
     corr_unstack['iv_feature_a'] = corr_unstack['feature_a'].map(lambda x: dict_iv[x])
     corr_unstack['iv_feature_b'] = corr_unstack['feature_b'].map(lambda x: dict_iv[x])
     return corr_unstack.sort_values('abs_corr_coef',ascending=False)
+
 
 def identify_colinear_features(encoded_X,dict_iv,threshold_corr=0.6):
     """Identify the highly-correlated features pair that may cause colinearity problem.

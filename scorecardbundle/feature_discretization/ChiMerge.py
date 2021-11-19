@@ -16,10 +16,10 @@ import numpy as np
 from scipy.stats import chi2
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from ..utils.func_numpy import assign_interval_unique
-from ..utils.func_numpy import assign_interval_str
-from ..utils.func_numpy import pivot_table_np
-from ..utils.func_numpy import interval_to_boundary_vector
+from scorecardbundle.utils.func_numpy import assign_interval_unique
+from scorecardbundle.utils.func_numpy import assign_interval_str
+from scorecardbundle.utils.func_numpy import pivot_table_np
+# from scorecardbundle.utils.func_numpy import interval_to_boundary_vector
 
 # ============================================================
 # Basic Functions
@@ -46,13 +46,14 @@ def chi2_test(A):
     C = A.sum(axis=0).reshape(1,-1).T # number of examples in each class
     # expected frequency
     # add 0.5 to avoid dividing by a small number (stated in original paper)
-    E = np.dot(C, R) / C.sum()  + 0.5 
+    E = np.dot(C, R) / C.sum() + 0.5
     chi2_value = (np.square(A.T - E)/E).sum() # chi square value
     return chi2_value
 
 # ============================================================
 # Main Part
 # ============================================================
+
 
 def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None, 
                      min_intervals=1, initial_intervals=100, 
@@ -133,7 +134,7 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         # use quantiles to bin x
         boundaries = np.unique(
             np.quantile(x, np.arange(0, 1, 1/initial_intervals)[1:])
-            ) # Add [1:] so that 0% persentile will not be a threshold
+            )  # Add [1:] so that 0% persentile will not be a threshold
     else:
         # Otherwise treat each unique value of x as an interval
         boundaries = np.unique(x)
@@ -146,13 +147,13 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
     # Return unique values as result if the number of unique x <= min_intervals
     if n_i <= min_intervals and output_boundary is False: 
         intervals_str = np.array(
-            [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
-                                                            intervals[:,1])])
-        return intervals_str # output the discretized array
+            [delimiter.join((str(a), str(b))) for a, b in zip(intervals[:, 0],
+                                                            intervals[:, 1])])
+        return intervals_str  # output the discretized array
     elif n_i <= min_intervals and output_boundary is True: 
-        if n_i==1:
+        if n_i == 1:
             boundaries = np.array([float('inf')])
-        return boundaries # output the unique upper boundaries of discretized array
+        return boundaries  # output the unique upper boundaries of discretized array
     
     # --------------------
     # Merging step
@@ -161,7 +162,7 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         max_intervals = n_i
     threshold = chi2.ppf(confidence_level, n_j-1) # chi2 threshold
     # pivot table of index*column
-    pt_value, pt_column, pt_index = pivot_table_np(intervals[:,1], y)
+    pt_value, pt_column, pt_index = pivot_table_np(intervals[:, 1], y)
 
     # perform Chi-square test on each pair of m adjacent intervals
     # use the ith interval's index as the interval pair's index    
@@ -178,17 +179,17 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
            (unique_intervals.shape[0] > min_intervals)):
         
         # Identify the index of adjacent pair(s) with smallest chi2 score
-        index_adjacent_to_merge, = np.where(chi2_array==chi2_array.min()) 
+        index_adjacent_to_merge, = np.where(chi2_array == chi2_array.min())
         # Identify the interval (or intervals) with smallest chi2 score
-        i_merge = adjacent_index[index_adjacent_to_merge,:]
+        i_merge = adjacent_index[index_adjacent_to_merge, :]
         # Merge the intervals for each selected pair into a new interval
         new_interval = np.array(
-            [(unique_intervals[:,0][unique_intervals[:,1] == index[0]][0],
+            [(unique_intervals[:, 0][unique_intervals[:, 1] == index[0]][0],
               index[1]) for index in i_merge])
 
         # Delete selected intervals and add the merged intervals
         index_delete_merged = np.array(
-            [np.where(unique_intervals[:,1]==e)[0][0] for e in i_merge.reshape(1,-1)[0]]
+            [np.where(unique_intervals[:, 1] == e)[0][0] for e in i_merge.reshape(1, -1)[0]]
             )
         unique_intervals = np.vstack((
             np.delete(unique_intervals, index_delete_merged, axis=0), 
@@ -197,8 +198,8 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         unique_intervals.sort(axis=0) 
 
         # Reassign intervals with the updated thresholds (unique_intervals)
-        intervals, unique_intervals = assign_interval_unique(x, unique_intervals[:,1])
-        pt_value, pt_column, pt_index = pivot_table_np(intervals[:,1], y) 
+        intervals, unique_intervals = assign_interval_unique(x, unique_intervals[:, 1])
+        pt_value, pt_column, pt_index = pivot_table_np(intervals[:, 1], y)
         # perform Chi-square test on each pair of m adjacent intervals
         # use the ith interval's index as the interval pair's index
         adjacent_list = (pt_value[i:i+m, :] for i in range(len(pt_value)-m+1)) 
@@ -207,15 +208,16 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
     
     if output_boundary:  
         # Output the unique upper  boundaries of discretized array
-        return unique_intervals[:,1]
+        return unique_intervals[:, 1]
     else:
         # Output the discretized array
         # Use join rather than use a+delimiter+b makes this line faster
         intervals_str = np.array(
-            [delimiter.join((str(a),str(b))) for a,b in zip(intervals[:,0],
-                                                            intervals[:,1])]
+            [delimiter.join((str(a), str(b))) for a, b in zip(intervals[:, 0],
+                                                            intervals[:, 1])]
             )    
         return intervals_str
+
 
 class ChiMerge(BaseEstimator, TransformerMixin):
     """
@@ -264,13 +266,8 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         Control the number of decimals of boundaries.
         Default is None.
 
-    output_boundary: boolean, optional(default=False)
-        If output_boundary is set to True. This function will output the
-        unique upper  boundaries of discretized array. If it is set to False,
-        This funciton will output the discretized array.
-        For example, if it is set to True and the array is discretized into
-        3 groups (1,2),(2,3),(3,4), this funciton will output an array of
-        [1,3,4].
+    output_dataframe: boolean, optional(default=False)
+        Whether to output np.array or pd.DataFrame
 
     Attributes
     ----------
@@ -336,8 +333,8 @@ class ChiMerge(BaseEstimator, TransformerMixin):
             features = X.values
         elif isinstance(X, np.ndarray):
             self.columns_ = np.array(
-                [''.join(('x',str(a))) for a in range(self.num_of_x_)]
-                ) #  # column names (i.e. x0, x1, ...)
+                [''.join(('x', str(a))) for a in range(self.num_of_x_)]
+                )  #  # column names (i.e. x0, x1, ...)
             features = X
         else:
             raise TypeError('X should be either numpy.ndarray or pandas.DataFrame')
@@ -350,7 +347,7 @@ class ChiMerge(BaseEstimator, TransformerMixin):
             raise TypeError('y should be either numpy.array or pandas.Series')
 
         boundary_list = [chi_merge_vector(
-                            features[:,i], target
+                            features[:, i], target
                             , m=self.__m__
                             , confidence_level=self.__confidence_level__
                             , max_intervals=self.__max_intervals__
@@ -362,6 +359,7 @@ class ChiMerge(BaseEstimator, TransformerMixin):
                             ) for i in range(self.num_of_x_)]
         self.boundaries_ = dict(zip(self.columns_, boundary_list))
         return self
+
     def transform(self, X):
         """
         Parameters
@@ -385,7 +383,8 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         result = np.array([assign_interval_str(
                                 features[:,i],
                                 self.boundaries_[col],
-                                delimiter=self.__delimiter__
+                                delimiter=self.__delimiter__,
+                                force_inf=False
                                 ) for i,col in enumerate(self.columns_)])
 
         if self.__output_dataframe__:

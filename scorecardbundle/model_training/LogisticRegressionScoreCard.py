@@ -10,9 +10,9 @@ import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from ..utils.func_numpy import assign_interval_str
-from ..utils.func_numpy import interval_to_boundary_vector
-from ..utils.func_numpy import map_np
+from scorecardbundle.utils.func_numpy import assign_interval_str
+from scorecardbundle.utils.func_numpy import interval_to_boundary_vector
+from scorecardbundle.utils.func_numpy import map_np
 
 
 # ============================================================
@@ -35,7 +35,7 @@ def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
     """
     score_rules = scorecard[scorecard['feature']==feature_name]
     boundaries = interval_to_boundary_vector(score_rules.value.values, delimiter=delimiter)
-    intervals = assign_interval_str(feature_array, boundaries, delimiter=delimiter)
+    intervals = assign_interval_str(feature_array, boundaries, delimiter=delimiter, force_inf=False)
     score_dict = dict(zip(score_rules.value, score_rules.score))
     scores = map_np(intervals, score_dict)
     return scores
@@ -43,6 +43,7 @@ def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
 # ============================================================
 # Main Functions
 # ============================================================
+
 
 class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     """Take woe-ed features, fit a regression and turn it into a scorecard.
@@ -187,8 +188,7 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
                                 ,random_state=random_state
                                 , **kargs
                                 )
-        
-    
+
     def fit(self, woed_X, y, **kargs):
         """
         Parameters
@@ -309,12 +309,21 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         else:
             raise TypeError('X_beforeWOE should be either numpy.ndarray or pandas.DataFrame')
 
-
         # Check whether the user choose to load a Scorecard rule table
         if load_scorecard is None:
             scorecard = self.woe_df_
         else:
-            scorecard = load_scorecard               
+            scorecard = load_scorecard
+
+        # Exam the passed features data
+        set_missing = set(scorecard['feature'].unique()) - set(self.columns_)
+        set_extra = set(self.columns_) - set(scorecard['feature'].unique())
+        if len(set_missing) > 0:
+            raise Exception("Scorecard rules have features which are not in the passed features data:" + str(set_missing))
+        elif len(set_extra) > 0:
+            raise Exception("The passed features data has features which are not in the Scorecard rules:" + str(set_extra))
+        else:
+            pass  # Assertion passed
 
         # Apply the Scorecard rules
         scored_result = pd.concat(

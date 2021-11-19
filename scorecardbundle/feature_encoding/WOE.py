@@ -10,7 +10,8 @@ import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from ..utils.func_numpy import map_np
+from scorecardbundle.utils.func_numpy import map_np
+
 
 def woe_vector(x, y, epslon=1e-10):
     """Calculate WOE and IV for 1 feature
@@ -42,7 +43,7 @@ def woe_vector(x, y, epslon=1e-10):
     
     # goods, bads for each group
     x_unique, local_total = np.unique(x, return_counts=True)
-    mask = (x.reshape(1,-1) == x_unique.reshape(1,-1).T) # identify groups
+    mask = (x.reshape(1, -1) == x_unique.reshape(1, -1).T)  # identify groups
     local_pos = np.array([y[m].sum() for m in mask])
     local_neg = local_total - local_pos
     local_odds = local_pos/(local_neg+epslon)
@@ -54,6 +55,7 @@ def woe_vector(x, y, epslon=1e-10):
     iv = np.sum((local_pos/positive - local_neg/negative) * woe_values)
     
     return woe_dict, iv
+
 
 class WOE_Encoder(BaseEstimator, TransformerMixin):
     """

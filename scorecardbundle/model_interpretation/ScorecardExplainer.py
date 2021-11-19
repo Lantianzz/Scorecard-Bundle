@@ -7,7 +7,8 @@ Identify the features who contribute the most in pusing the total score above a 
 import pandas as pd
 import numpy as np 
 
-def _instance_important_features(scores,feature_names,threshold):
+
+def _instance_important_features(scores, feature_names, threshold):
     """For one instance, indentify features who contribute the most 
     in pusing the instance's total score above a threshold.
     
@@ -38,6 +39,7 @@ def _instance_important_features(scores,feature_names,threshold):
     ifeatures = dict(zip(tem.iloc[:,0],tem.iloc[:,1])) # returned dictionary
     return ifeatures
 
+
 def _instance_top_features(scores,feature_names,n):
     """For one instance, indentify the instance's n-highest-score features.
     
@@ -64,6 +66,7 @@ def _instance_top_features(scores,feature_names,n):
     tem = tem.iloc[0:n,:] # 
     ifeatures = dict(zip(tem.iloc[:,0],tem.iloc[:,1]))
     return ifeatures
+
 
 def important_features(scored_df,feature_names,col_totalscore='TotalScore',threshold_method=0.8, bins=None):
     """Identify features who contribute the most in pushing the total score above a threshold.
@@ -117,9 +120,8 @@ def important_features(scored_df,feature_names,col_totalscore='TotalScore',thres
     elif isinstance(threshold_method,int) and 1<=threshold_method<=len(feature_names): 
         ifeatures_list = [_instance_top_features(e,feature_names,threshold_method) for e in scored_df[feature_names].values]
         return ifeatures_list
-    
-	# Raise exception
     else:
+        # Raise exception
         raise TypeError("Unsupported threshold_method. Valid values can be float in (0,1) or string 'bins' or integer in [1,number of features].")
     
     ifeatures_list = [_instance_important_features(e,feature_names,threshold) for e,threshold in zip(scored_df[feature_names].values,thresholds)]
