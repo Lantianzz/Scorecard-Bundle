@@ -39,6 +39,14 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
 
 - Pip: Scorecard-Bundle can be installed with pip:  `pip install --upgrade scorecardbundle` 
 
+  ！**Note that the latest version may be not available at some pip mirror site** (e.g. https://mirrors.aliyun.com/pypi/simple/). Therefore in order to update to the latest version,  use the following command to specify the source as https://pypi.org/project
+
+  ~~~bash
+  pip install -i https://pypi.org/project --upgrade scorecardbundle
+  ~~~
+
+  
+
 - Manually: Download codes from github `<https://github.com/Lantianzz/Scorecard-Bundle>` and import them directly:
 
   ~~~python
@@ -130,6 +138,14 @@ Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑�
 注意，Scorecard-Bundle依赖NumPy, Pandas, matplotlib, Scikit-Learn, SciPy，可单独安装或直接使用[Anaconda](https://www.anaconda.com/)安装。
 
 - Pip: Scorecard-Bundle可使用pip安装:  `pip install --upgrade scorecardbundle` 
+
+  注意！**最新版本可能尚未被纳入一些镜像源网站** (e.g. https://mirrors.aliyun.com/pypi/simple/)。因此为了更新到最新版本，可以使用下面的命令，指定 https://pypi.org/project作为源
+
+  ~~~bash
+  pip install -i https://pypi.org/project --upgrade scorecardbundle
+  ~~~
+
+  
 
 - 手动: 从Github下载代码`<https://github.com/Lantianzz/Scorecard-Bundle>`， 直接导入:
 
