@@ -10,9 +10,9 @@ import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from ..utils.func_numpy import assign_interval_str
-from ..utils.func_numpy import interval_to_boundary_vector
-from ..utils.func_numpy import map_np
+from scorecardbundle.utils.func_numpy import assign_interval_str
+from scorecardbundle.utils.func_numpy import interval_to_boundary_vector
+from scorecardbundle.utils.func_numpy import map_np
 
 
 # ============================================================
@@ -43,6 +43,7 @@ def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
 # ============================================================
 # Main Functions
 # ============================================================
+
 
 class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     """Take woe-ed features, fit a regression and turn it into a scorecard.
@@ -187,8 +188,7 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
                                 ,random_state=random_state
                                 , **kargs
                                 )
-        
-    
+
     def fit(self, woed_X, y, **kargs):
         """
         Parameters
@@ -308,7 +308,6 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
                 ) #  # column names (i.e. x0, x1, ...)
         else:
             raise TypeError('X_beforeWOE should be either numpy.ndarray or pandas.DataFrame')
-
 
         # Check whether the user choose to load a Scorecard rule table
         if load_scorecard is None:

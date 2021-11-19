@@ -63,6 +63,7 @@ def _assign_interval_base(x, boundaries, force_inf=True):
     intervals= np.stack((lowers, uppers), axis=1) 
     return intervals
 
+
 def assign_interval_unique(x, boundaries, force_inf=True):
     """Assign each value in x an interval from boundaries.
     
@@ -107,6 +108,7 @@ def assign_interval_unique(x, boundaries, force_inf=True):
     intervals= _assign_interval_base(x, boundaries, force_inf=force_inf)
     unique_intervals = np.unique(intervals, axis=0)
     return intervals, unique_intervals
+
 
 def assign_interval_str(x, boundaries, delimiter='~', force_inf=True):
     """Assign each value in x an interval from boundaries.
@@ -155,6 +157,7 @@ def assign_interval_str(x, boundaries, delimiter='~', force_inf=True):
                                                         intervals[:,1])]
         )
     return intervals_str
+
 
 def pivot_table_np(index, column):
     """Perform cross-tabulation to index vector and column vector.
@@ -209,6 +212,7 @@ def pivot_table_np(index, column):
         )
     return pivot_table, column_unique, index_unique
 
+
 def interval_to_boundary_vector(vector, delimiter='~'):
     """Transform an array of interval strings into the
     unique boundaries of such intervals.
@@ -231,6 +235,7 @@ def interval_to_boundary_vector(vector, delimiter='~'):
     boundaries = np.array(list(set(delimiter.join(np.unique(vector)).split(delimiter))))
     boundaries = boundaries[(boundaries!='-inf') & (boundaries!='inf')].astype(float)
     return boundaries
+
 
 def map_np(array, dictionary):
     """map function for numpy array
