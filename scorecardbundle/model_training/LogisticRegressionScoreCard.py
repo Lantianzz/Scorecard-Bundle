@@ -35,7 +35,7 @@ def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
     """
     score_rules = scorecard[scorecard['feature']==feature_name]
     boundaries = interval_to_boundary_vector(score_rules.value.values, delimiter=delimiter)
-    intervals = assign_interval_str(feature_array, boundaries, delimiter=delimiter)
+    intervals = assign_interval_str(feature_array, boundaries, delimiter=delimiter, force_inf=False)
     score_dict = dict(zip(score_rules.value, score_rules.score))
     scores = map_np(intervals, score_dict)
     return scores
@@ -314,7 +314,17 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         if load_scorecard is None:
             scorecard = self.woe_df_
         else:
-            scorecard = load_scorecard               
+            scorecard = load_scorecard
+
+        # Exam the passed features data
+        set_missing = set(scorecard['feature'].unique()) - set(self.columns_)
+        set_extra = set(self.columns_) - set(scorecard['feature'].unique())
+        if len(set_missing) > 0:
+            raise Exception("Scorecard rules have features which are not in the passed features data:" + str(set_missing))
+        elif len(set_extra) > 0:
+            raise Exception("The passed features data has features which are not in the Scorecard rules:" + str(set_extra))
+        else:
+            pass  # Assertion passed
 
         # Apply the Scorecard rules
         scored_result = pd.concat(

@@ -385,7 +385,8 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         result = np.array([assign_interval_str(
                                 features[:,i],
                                 self.boundaries_[col],
-                                delimiter=self.__delimiter__
+                                delimiter=self.__delimiter__,
+                                force_inf=False
                                 ) for i,col in enumerate(self.columns_)])
 
         if self.__output_dataframe__:
