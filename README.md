@@ -33,7 +33,9 @@ See detailed and more reader-friendly documentation in **https://scorecard-bundl
 
 In Scorecard-Bundle, core codes such as WOE/IV calculation and scorecard transformation were written based on Mamdouh Refaat's book '"Credit Risk Scorecards: Development and Implementation Using SAS"；ChiMerge was written based on Randy Kerber's paper "ChiMerge: Discretization of Numeric Attributes".
 
-### Installment
+## Installation
+
+**Installing the latest version [![Downloads](https://img.shields.io/pypi/v/scorecardbundle?color=orange)](https://img.shields.io/pypi/v/scorecardbundle?color=orange)  is strongly recommended** as every version either corrected known bugs or added useful functionality.  In principle, critical bugs are fixed as soon as they are revealed. Therefore please file an issue if you suspect the presence of a bug when using Scorecard-Bundle.
 
 Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, and SciPy, which can be installed individually or together through [Anaconda](https://www.anaconda.com/)
 
@@ -63,7 +65,7 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
 
 ### Important Notice
 
-- [Fix] 2 rare but critical bugs has been fixed from V1.2.1. Therefore I strongly advised anyone who uses Scorecard-bundle to update their older versions. See details of the bugs in the updates log for V1.2.1.  Thanks to @ zeyunH for bring one of the bugs to me.
+- [Fix] 2 rare but critical bugs has been fixed from V1.2.1. Therefore I strongly advised anyone who uses Scorecard-bundle to update their older versions. See details of the bugs in the updates log for V1.2.1.  Thanks to @ zeyunH for bringing one of the bugs to me.
 - [Notice] In several functions of WOE and ChiMerge module,  vector outer product is used to get the boolean mask matrix between two vectors. This may cause memory error if the feature has too many unique values (e.g.  a feature whose sample size is 350,000 and number of unique values is 10,000  caused this error in a 8G RAM laptop when calculating WOE). The tricky thing is the error message may not be "memory error" and this makes it harder for user to debug ( the current error message could be `TypeError: 'bool' object is not iterable` or  `DeprecationWarning:  elementwise comparison failed`). 
 - [Fix] When using V1.0.2, songshijun007 brought up an issue about the occuring of KeyError due to too few unique values on training set and more extreme values in the test set. This issue has been fixed from V1.1.0.  (issue url: https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
@@ -134,6 +136,8 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
 Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑源自《信用风险评分卡研究 —基于SAS的开发与实施》一书，该书籍由王松奇和林治乾翻译自Mamdouh Refaat的"Credit Risk Scorecards: Development and Implementation Using SAS"；而ChiMerge算法则是复现了原作者Randy Kerber的论文"ChiMerge: Discretization of Numeric Attributes"。
 
 ### 安装
+
+**由于每次版本更新都在修复已知的bug或添加重要的新功能，强烈建议安装最新版本 [![Downloads](https://img.shields.io/pypi/v/scorecardbundle?color=orange)](https://img.shields.io/pypi/v/scorecardbundle?color=orange)** 。严重的bug原则上都会在被发现的第一时间修复，因此若在使用Scorecard-Bundle的过程中怀疑存在bug，欢迎在issue中记录。
 
 注意，Scorecard-Bundle依赖NumPy, Pandas, matplotlib, Scikit-Learn, SciPy，可单独安装或直接使用[Anaconda](https://www.anaconda.com/)安装。
 
