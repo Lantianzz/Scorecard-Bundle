@@ -10,7 +10,7 @@ A High-level Scorecard Modeling API | 评分卡建模尽在于此
 
 - [ReadMe](#readme)
   - [Introduction](#introduction)
-  - [Installment](#installment)
+  - [Installation](#Installation)
   - [Important Notice](#important-notice)
   - [Updates Log](#updates-log)
 - [读我](#读我)
@@ -27,15 +27,15 @@ A High-level Scorecard Modeling API | 评分卡建模尽在于此
 
 Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use and **Scikit-Learn consistent**.  It covers the major steps of training a Scorecard model including feature discretization with ChiMerge, WOE encoding, feature evaluation with information value and collinearity, Logistic-Regression-based Scorecard model, and model evaluation for binary classification tasks. All the transformers and model classes in Scorecard-Bundle comply with Scikit-Learn‘s fit-transform-predict convention.
 
-A complete example showing how to build a scorecard with Scorecard-Bundle: [Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
+- A complete example showing how to build a scorecard with Scorecard-Bundle: [Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
 
-See detailed and more reader-friendly documentation in **https://scorecard-bundle.bubu.blue/**
+- See detailed and more reader-friendly documentation in **https://scorecard-bundle.bubu.blue/**
 
 In Scorecard-Bundle, core algorithms in WOE/IV calculation and scorecard transformation were based on the methods introduced in Mamdouh Refaat's book '"Credit Risk Scorecards: Development and Implementation Using SAS"；ChiMerge was written based on Randy Kerber's paper "ChiMerge: Discretization of Numeric Attributes".
 
 I developed Scorecard-Bundle in my private time, but its codes wouldn't be so good if my superior [Andyshi](https://github.com/andysda) hasn't been allowing me to use it in projects at work, if my colleages (e.g. [zeyunH](https://github.com/zeyunH)) hasn't been active in using it, or if users didn't report issues when they found bugs.  Thanks to everyone who helps to make Scorecard-Bundle better.
 
-## Installation
+### Installation
 
 **Installing the latest version [![Downloads](https://img.shields.io/pypi/v/scorecardbundle?color=orange)](https://img.shields.io/pypi/v/scorecardbundle?color=orange)  is strongly recommended** as every version either corrected known bugs or added useful functionality.  In principle, critical bugs are fixed as soon as they are revealed. Therefore please file an issue if you suspect the presence of a bug when using Scorecard-Bundle.
 
