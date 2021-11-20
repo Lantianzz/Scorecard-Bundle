@@ -25,13 +25,15 @@ A High-level Scorecard Modeling API | 评分卡建模尽在于此
 
 ### Introduction
 
-Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use and **Scikit-Learn consistent**.  It covers the major steps to train a Scorecard model such as feature discretization with ChiMerge, WOE encoding, feature evaluation with information value and collinearity, Logistic-Regression-based Scorecard model, and model evaluation for binary classification tasks. All the transformer and model classes in Scorecard-Bundle comply with Scikit-Learn‘s fit-transform-predict convention.
+Scorecard-Bundle is a **high-level Scorecard modeling API** that is easy-to-use and **Scikit-Learn consistent**.  It covers the major steps of training a Scorecard model including feature discretization with ChiMerge, WOE encoding, feature evaluation with information value and collinearity, Logistic-Regression-based Scorecard model, and model evaluation for binary classification tasks. All the transformers and model classes in Scorecard-Bundle comply with Scikit-Learn‘s fit-transform-predict convention.
 
 A complete example showing how to build a scorecard with Scorecard-Bundle: [Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
 
 See detailed and more reader-friendly documentation in **https://scorecard-bundle.bubu.blue/**
 
-In Scorecard-Bundle, core codes such as WOE/IV calculation and scorecard transformation were written based on Mamdouh Refaat's book '"Credit Risk Scorecards: Development and Implementation Using SAS"；ChiMerge was written based on Randy Kerber's paper "ChiMerge: Discretization of Numeric Attributes".
+In Scorecard-Bundle, core algorithms in WOE/IV calculation and scorecard transformation were based on the methods introduced in Mamdouh Refaat's book '"Credit Risk Scorecards: Development and Implementation Using SAS"；ChiMerge was written based on Randy Kerber's paper "ChiMerge: Discretization of Numeric Attributes".
+
+I developed Scorecard-Bundle in my private time, but its codes wouldn't be so good if my superior [Andyshi](https://github.com/andysda) hasn't been allowing me to use it in projects at work, if my colleages (e.g. [zeyunH](https://github.com/zeyunH)) hasn't been active in using it, or if users didn't report issues when they found bugs.  Thanks to everyone who helps to make Scorecard-Bundle better.
 
 ## Installation
 
@@ -78,9 +80,9 @@ This is an emergency update to fix 2 related bugs that may be triggered in rare 
 - feature_discretization:
   - [Fix] Add parameter `force_inf` to `scorecardbundle/utils/func_numpy.py/_assign_interval_base()` and related codes. This parameter controls Whether to force the largest interval's right boundary to be positive infinity. Default is True.
     - Bug description:
-      - In the case when the largest boundary value `b_max`passed is larger than or equal to the maximum feature value, the largest interval output will be (xxx, b_max]. In tasks like fitting ChiMerge where the output intervals are supposed to cover the entire value space (-inf ~ inf), this parameter `force_inf` should be set to True so that the largest interval will be overwritten from (xxx, b_max] to (xxx, inf]. In other words, the previous largest boundary value is abandoned.
-      - In the old version of codes the adjustment stated above was applied in all tasks. However,  when merely applying the given boundaries, the output intervals should be exactly where the values belong according to the given boundaries and does not have to cover the entire value space. In this case forcing the largest interval to have inf may generate intervals that did not exist. For example, the passed boundary values are 0, 10, 20, 30, while the largest feature value is only 20. The old version would change the largest interval from (10, 20] to (10, inf]
-    - Solution in V1.2.1: Set `force_inf=True` in tasks like fitting ChiMerge where we want the output intervals to cover the entire value space; Set `force_inf=False` when in tasks like ChiMerge transform and Scorecard predict where we only need to transform feature values into intervals based on the given boundaries.
+      - In the case when the largest boundary value `b_max`passed is larger than or equal to the maximum feature value, the largest interval output is originally (xxx, b_max]. In tasks like fitting ChiMerge where the output intervals are supposed to cover the entire value space (-inf ~ inf), this parameter `force_inf` should be set to True so that the largest interval will be overwritten from (xxx, b_max] to (xxx, inf]. In other words, the previous largest boundary value is abandoned.
+      - In the old version of codes the adjustment stated above was applied in all tasks. However,  when merely applying the given boundaries, the output intervals should be exactly where the values belong according to the given boundaries and does not have to cover the entire value space. In this case forcing the largest interval to have inf may generate intervals that should not exist. For example, the passed boundary values are 0, 10, 20, 30, while the largest feature value is only 20. The old version would change the largest interval from (10, 20] to (10, inf], which should not exist given the boundaries.
+    - Solution in V1.2.1: Set `force_inf=True` in tasks like fitting ChiMerge where we want the output intervals to cover the entire value space so that the largest interval will be fixed to cover infinity. Set `force_inf=False` in tasks like ChiMerge transform and Scorecard predict where we only need to transform feature values into intervals based on the given boundaries.
   - [Fix] When generating intervals with `_assign_interval_base` in ChiMerge `fit()`,  the largest interval will be overwritten from (xxx, b_max] to (xxx, inf] to cover the entire value range. However, previously the codes only perform this adjustment when the largest boundary value is equal to the maximum value of the data, while in practive the largest boundary may be larger due to rounding (e.g. the max value is 3.14159 and the threshold happend to choose this value and rounded up to 3.1316 due to the `decimal` parameter of ChiMerge). From V1.2.1, the condition has been changed to `>=` 
 - model_training.LogisticRegressionScoreCard:
   - [Fix] Set `force_inf=False` in function `assign_interval_str` when calling Scorecard predict(). This is to avoid getting KeyError because the maximum interval adjustment mentioned above generates an interval that does not exist in the Scorecard rules.
@@ -129,11 +131,13 @@ This is an emergency update to fix 2 related bugs that may be triggered in rare 
 
 Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便且符合Scikit-Learn的调用习惯，包含的类均遵守Scikit-Learn的fit-transform-predict习惯。Scorecard-Bundle包括基于ChiMerge的特征离散化、WOE编码、基于信息值（IV）和共线性的特征评估、基于逻辑回归的评分卡模型、以及针对二元分类任务的模型评估。
 
-展示如何训练评分卡模型的完整示例见[Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
+- 展示如何训练评分卡模型的完整示例见[Example Notebooks](https://scorecard-bundle.bubu.blue/Notebooks/)
 
-详细的、更友好的文档见**https://scorecard-bundle.bubu.blue/**
+- 详细的、更友好的文档见**https://scorecard-bundle.bubu.blue/**
 
 Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑源自《信用风险评分卡研究 —基于SAS的开发与实施》一书，该书籍由王松奇和林治乾翻译自Mamdouh Refaat的"Credit Risk Scorecards: Development and Implementation Using SAS"；而ChiMerge算法则是复现了原作者Randy Kerber的论文"ChiMerge: Discretization of Numeric Attributes"。
+
+虽然我是用私人时间开发的Scorecard-Bundle，但如果不是我的上级 [Andyshi](https://github.com/andysda) 允许我在工作中使用它、如果不是我的同事 (e.g. [zeyunH](https://github.com/zeyunH)) 积极的使用和反馈、如果不是用户们在发现bug时候提出issue，Scorecard-Bundle的代码不会有现在这么好。感谢帮助Scorecard-Bundle变得更好的每一个人。
 
 ### 安装
 
@@ -181,8 +185,8 @@ Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑�
   - [Fix]添加参数 `force_inf` 到函数 `scorecardbundle/utils/func_numpy.py/_assign_interval_base()`及相关代码，此参数控制是否会强制最大的区间的右侧边界为正无穷，默认为True
     - Bug描述：
       - 当传入的最大阈值`b_max`大于等于特征数据的最大值时，输出的最大的区间原本是(xxx, b_max]，而fit ChiMerge计算离散化的阈值时，需要输出的区间覆盖整个值域(-inf ~ inf)，此时这个参数应该被设为True，使得最大区间被从 (xxx, b_max] 改为(xxx, inf]，相当于原有的最大阈值被弃用了。
-      - 旧版本的代码在所有情况下都无差别的应用了上面的修改规则，然而，当仅仅在应用已知的阈值将数值型数据转化为分箱时，输出的区间应该只有数值所处的位置决定，此时若对最大区间进行调整，可能会导致出现于原阈值不符的区间。例如传入的阈值是0,10,20,30，传入的数据最大值仅有20，旧代码会将最大的区间由原本的(10, 20]修改为(10, inf]；
-    - 修复：添加此参数作为开关后，在fit ChiMerge这样希望输出的区间覆盖整个值域的任务中使用`force_inf=True`，在用ChiMerge做transform操作、或使用评分卡的predict()这样希望严格按照阈值输出区间的任务中，使用`force_inf=False`
+      - 旧版本的代码在所有情况下都无差别的应用了上面的修改规则，然而，当仅仅在应用已知的阈值将数值型数据转化为分箱时，输出的区间应该只有数值所处的位置决定，此时若对最大区间进行调整，可能会导致出现于原阈值不符的区间。例如传入的阈值是0,10,20,30，传入的数据最大值仅有20，旧代码会将最大的区间由原本的(10, 20]修改为(10, inf]，而根据给定的阈值不应该存在(10, inf]这个区间；
+    - 修复：添加此参数作为开关后，在fit ChiMerge这样希望输出的区间覆盖整个值域的任务中使用`force_inf=True`，这样可以按需修正最大区间使其覆盖到正无穷；在用ChiMerge做transform操作、或使用评分卡的predict()这样希望严格按照阈值输出区间的任务中，使用`force_inf=False`；
   - [Fix] 当在 ChiMerge `fit()`中，旧版代码只会在最大阈值等于数据最大值时作上面提到的调整，然而实践中可能出现四舍五入导致最大阈值大于最大值的情况 (e.g. 最大值为3.14159 ，而最大阈值正好选中了这个值且由于ChiMerge的`decimal`参数四舍五入到了3.1316)。因此从V1.2.1开始，生效的条件被改为了`>=` 
 - 模型训练 model_training.LogisticRegressionScoreCard:
   - [Fix] predict()中为函数`assign_interval_str` 设置`force_inf=False`，避免原代码在最大阈值等于数据最大值时会擅自修改输出的最大区间，导致出现评分规则中不存在的区间，造成评分规则时的KeyError
