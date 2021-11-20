@@ -137,7 +137,7 @@ Scorecard-Bundle是一个基于Python的高级评分卡建模API，实施方便�
 
 Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑源自《信用风险评分卡研究 —基于SAS的开发与实施》一书，该书籍由王松奇和林治乾翻译自Mamdouh Refaat的"Credit Risk Scorecards: Development and Implementation Using SAS"；而ChiMerge算法则是复现了原作者Randy Kerber的论文"ChiMerge: Discretization of Numeric Attributes"。
 
-虽然我是用私人时间开发的Scorecard-Bundle，但如果不是我的上级 [Andyshi](https://github.com/andysda) 允许我在工作中使用它、如果不是我的同事 (e.g. [zeyunH](https://github.com/zeyunH)) 积极的使用和反馈、如果不是用户们在发现bug时候提出issue，Scorecard-Bundle的代码不会有现在这么好。感谢帮助Scorecard-Bundle变得更好的每一个人。
+虽然我是用私人时间开发的Scorecard-Bundle，但如果不是我的上级 [Andyshi](https://github.com/andysda) 允许我在工作中使用它、如果不是我的同事 (e.g. [zeyunH](https://github.com/zeyunH)) 积极的使用和反馈、如果不是用户们在发现bug时提出issue，Scorecard-Bundle的代码不会有现在这么好。感谢帮助Scorecard-Bundle变得更好的每一个人。
 
 ### 安装
 
