@@ -76,14 +76,14 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
 This is an emergency update to fix 2 related bugs that may be triggered in rare cases but are hard to debug for someone who is not familiar with the codes. Thanks to @ zeyunH for bring one of the bugs to me.
 
 - feature_discretization:
-  - [Fix] Add parameter `force_inf` to `scorecardbundle/utils/func_numpy.py/_assign_interval_base(), assign_interval_unique(), assign_interval_str()`
-    - This parameter controls Whether to force the largest interval's right boundary to be positive infinity. Default is True.
-    - In the case when an upper boundary is not smaller then the maximum value, the largest interval output will be (xxx, upper]. In tasks like fitting ChiMerge where the output intervals are supposed to cover the entire value space (-inf ~ inf), this parameter `force_inf` should be set to True so that the largest interval will be overwritten from (xxx, upper] to (xxx, inf]. In other words, the previous upper boundary value is abandoned.
-    - However when merely applying given boundaries, the output intervals should be exactly where the values belong according to the given boundaries and does not have to cover the entire value space. Users may only pass in a few values to transform into intervals, forcing the largest interval to have inf may generate intervals that did not exist.
-    - Therefore, set `force_inf=True` when fitting ChiMerge; Set `force_inf=False` when calling ChiMerge transform or Scorecard predict.
-  - [Fix] When generating intervals with `_assign_interval_base` in ChiMerge `fit()`,  the largest interval will be overwritten from (xxx, upper] to (xxx, inf] to cover the entire value range. However, previously the codes only perform this when the upper boundary (one of the given thresholds) is equal to the maximum value of the data, while in practive the upper boundary may be larger due to rounding (e.g. the max value is 3.14159 and the threshold happend to choose this value and rounded up to 3.1316 due to the `decimal` parameter of ChiMerge). From V1.2.1, the condition has been changed to `>=` 
+  - [Fix] Add parameter `force_inf` to `scorecardbundle/utils/func_numpy.py/_assign_interval_base()` and related codes. This parameter controls Whether to force the largest interval's right boundary to be positive infinity. Default is True.
+    - Bug description:
+      - In the case when the largest boundary value `b_max`passed is larger than or equal to the maximum feature value, the largest interval output will be (xxx, b_max]. In tasks like fitting ChiMerge where the output intervals are supposed to cover the entire value space (-inf ~ inf), this parameter `force_inf` should be set to True so that the largest interval will be overwritten from (xxx, b_max] to (xxx, inf]. In other words, the previous largest boundary value is abandoned.
+      - In the old version of codes the adjustment stated above was applied in all tasks. However,  when merely applying the given boundaries, the output intervals should be exactly where the values belong according to the given boundaries and does not have to cover the entire value space. In this case forcing the largest interval to have inf may generate intervals that did not exist. For example, the passed boundary values are 0, 10, 20, 30, while the largest feature value is only 20. The old version would change the largest interval from (10, 20] to (10, inf]
+    - Solution in V1.2.1: Set `force_inf=True` in tasks like fitting ChiMerge where we want the output intervals to cover the entire value space; Set `force_inf=False` when in tasks like ChiMerge transform and Scorecard predict where we only need to transform feature values into intervals based on the given boundaries.
+  - [Fix] When generating intervals with `_assign_interval_base` in ChiMerge `fit()`,  the largest interval will be overwritten from (xxx, b_max] to (xxx, inf] to cover the entire value range. However, previously the codes only perform this adjustment when the largest boundary value is equal to the maximum value of the data, while in practive the largest boundary may be larger due to rounding (e.g. the max value is 3.14159 and the threshold happend to choose this value and rounded up to 3.1316 due to the `decimal` parameter of ChiMerge). From V1.2.1, the condition has been changed to `>=` 
 - model_training.LogisticRegressionScoreCard:
-  - [Fix] Set `force_inf=False` in function `assign_interval_str` when calling Scorecard predict();
+  - [Fix] Set `force_inf=False` in function `assign_interval_str` when calling Scorecard predict(). This is to avoid getting KeyError because the maximum interval adjustment mentioned above generates an interval that does not exist in the Scorecard rules.
   - [Add] Add a sanity check against the Scorecard rules on the `X_beforeWOE` parameter of `LogisticRegressionScoreCard.predict()` . In the case when the Scorecard rules have features which are not in the passed features data, or the passed features data has features which are not in the Scorecard rules, an exception will be raised.
 
 #### V1.2.0
@@ -178,14 +178,14 @@ Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑�
 为了修复两处罕见的bug而紧急发布V1.2.1版本。下面的bug对于不熟悉代码的用户较难排查。感谢@ zeyunH 指出其中的一个bug
 
 - 特征离散化feature_discretization:
-  - [Fix]添加参数 `force_inf` 到函数 `scorecardbundle/utils/func_numpy.py/_assign_interval_base(), assign_interval_unique(), assign_interval_str()`
-    - 此参数控制是否会强制最大的区间的右侧边界为正无穷，默认为True
-    - 当最大区间的右侧边界不小于数据的最大值时，最大的区间原本是(xxx, upper]. 对于fit ChiMerge这样需要输出的区间覆盖整个值域(-inf ~ inf)的任务而言，这个参数应该被设为True，使得最大区间被从 (xxx, upper] 改为(xxx, inf]，即原有的右侧边界这个阈值被弃用了
-    - 然而，当仅仅在应用已知的阈值时，输出的区间应该只有数值所处的位置决定，此时若对最大区间进行调整，可能会导致出现于原阈值不符的区间
-    - 因此，在fit ChiMerge时使用`force_inf=True`，在用ChiMerge做transform操作、或使用评分卡的predict()时，使用`force_inf=False`
-  - [Fix] 当在 ChiMerge `fit()`中使用`_assign_interval_base`生成区间时，会对最大区间进行调整，使其右侧边界变为正无穷。旧版代码只会在区间的右侧边界等于数据最大值时作调整，然而实践中可能出现四舍五入导致的右侧边界大于最大值的情况 (e.g. 最大值为3.14159 ，而右侧边界正好选中了这个值且由于ChiMerge的`decimal`参数四舍五入到了3.1316)。因此从V1.2.1开始，生效的条件被改为了`>=` 
+  - [Fix]添加参数 `force_inf` 到函数 `scorecardbundle/utils/func_numpy.py/_assign_interval_base()`及相关代码，此参数控制是否会强制最大的区间的右侧边界为正无穷，默认为True
+    - Bug描述：
+      - 当传入的最大阈值`b_max`大于等于特征数据的最大值时，输出的最大的区间原本是(xxx, b_max]，而fit ChiMerge计算离散化的阈值时，需要输出的区间覆盖整个值域(-inf ~ inf)，此时这个参数应该被设为True，使得最大区间被从 (xxx, b_max] 改为(xxx, inf]，相当于原有的最大阈值被弃用了。
+      - 旧版本的代码在所有情况下都无差别的应用了上面的修改规则，然而，当仅仅在应用已知的阈值将数值型数据转化为分箱时，输出的区间应该只有数值所处的位置决定，此时若对最大区间进行调整，可能会导致出现于原阈值不符的区间。例如传入的阈值是0,10,20,30，传入的数据最大值仅有20，旧代码会将最大的区间由原本的(10, 20]修改为(10, inf]；
+    - 修复：添加此参数作为开关后，在fit ChiMerge这样希望输出的区间覆盖整个值域的任务中使用`force_inf=True`，在用ChiMerge做transform操作、或使用评分卡的predict()这样希望严格按照阈值输出区间的任务中，使用`force_inf=False`
+  - [Fix] 当在 ChiMerge `fit()`中，旧版代码只会在最大阈值等于数据最大值时作上面提到的调整，然而实践中可能出现四舍五入导致最大阈值大于最大值的情况 (e.g. 最大值为3.14159 ，而最大阈值正好选中了这个值且由于ChiMerge的`decimal`参数四舍五入到了3.1316)。因此从V1.2.1开始，生效的条件被改为了`>=` 
 - 模型训练 model_training.LogisticRegressionScoreCard:
-  - [Fix] predict()中为函数`assign_interval_str` 设置`force_inf=False`
+  - [Fix] predict()中为函数`assign_interval_str` 设置`force_inf=False`，避免原代码在最大阈值等于数据最大值时会擅自修改输出的最大区间，导致出现评分规则中不存在的区间，造成评分规则时的KeyError
   - [Add] 添加了对传入的特征数据`X_beforeWOE` 的检查，当评分规则中存在特征数据没有的特征、或特征数据中存在评分规则没有的特征时，会抛出异常
 
 #### V1.2.0
