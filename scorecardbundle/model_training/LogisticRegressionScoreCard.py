@@ -156,37 +156,37 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     
     """     
     
-    def __init__(self, woe_transformer, C=1, class_weight=None, 
-                 PDO=-20, basePoints = 100, baseOdds=None,
+    def __init__(self, woe_transformer, C=1.0, class_weight=None,
+                 PDO=-20, basePoints=100, baseOdds=None,
                  decimal=0, start_points = False,
-                 output_option='excel', output_path=None, verbose=False, 
+                 output_option='excel', output_path=None, verbose=False,
                  delimiter='~', random_state=None, **kargs):
         
-        self.__woe_transformer__ = woe_transformer
-        self.__C__ = C
-        self.__class_weight__ = class_weight
-        self.__random_state__ = random_state
-        self.__PDO__ = PDO
-        self.__basePoints__ = basePoints
-        self.__output_option__ = output_option
-        self.__decimal__ = decimal
-        self.__output_path__ = output_path
-        self.__start_points__ = start_points
-        self.__verbose__ = verbose
-        self.__delimiter__ = delimiter
-        self.__baseOdds__ = baseOdds
+        self.woe_transformer = woe_transformer
+        self.C = C
+        self.class_weight = class_weight
+        self.random_state = random_state
+        self.PDO = PDO
+        self.basePoints = basePoints
+        self.output_option = output_option
+        self.decimal = decimal
+        self.output_path = output_path
+        self.start_points = start_points
+        self.verbose = verbose
+        self.delimiter = delimiter
+        self.baseOdds = baseOdds
         self.fit_sample_size_ = None
         self.num_of_x_ = None
         self.columns_ = None
-        self.__p__ = None
+        self.p_ = None
         self.AB_ = None
         self.woe_df_ = None
         self.startPoints_ = None
         self.transform_sample_size_ = None
-        self.lr_ = LogisticRegression(C=C
-                                ,class_weight=class_weight
-                                ,random_state=random_state
-                                , **kargs
+        self.lr_ = LogisticRegression(C=self.C
+                                    , class_weight=self.class_weight
+                                    , random_state=self.random_state
+                                    , **kargs
                                 )
 
     def fit(self, woed_X, y, **kargs):
@@ -228,18 +228,18 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
 
         # Basic settings of Scorecard
         positive, total = y.sum(), y.shape[0]   
-        if self.__baseOdds__ is None:
-            self.__baseOdds__ = positive / (total - positive) 
-        self.__p__ = self.__baseOdds__  / (1 + self.__baseOdds__)
-        B = self.__PDO__/np.log(2)
-        A = self.__basePoints__ + B * np.log(self.__baseOdds__)
+        if self.baseOdds is None:
+            self.baseOdds = positive / (total - positive)
+        self.p_ = self.baseOdds  / (1 + self.baseOdds)
+        B = self.PDO/np.log(2)
+        A = self.basePoints + B * np.log(self.baseOdds)
         self.AB_ = (A, B)
         
         # Concat vertically all woe values (scorecard rules table)
         woe_list = [pd.concat([
-           pd.Series([col]*len(self.__woe_transformer__.result_dict_[col][0])), # Name of x
-           pd.Series(list(self.__woe_transformer__.result_dict_[col][0].keys())), # interval strings of x 
-           pd.Series(list(self.__woe_transformer__.result_dict_[col][0].values())) # woe values of x
+           pd.Series([col]*len(self.woe_transformer.result_dict_[col][0])), # Name of x
+           pd.Series(list(self.woe_transformer.result_dict_[col][0].keys())), # interval strings of x
+           pd.Series(list(self.woe_transformer.result_dict_[col][0].values())) # woe values of x
            ],axis=1) for col in self.columns_]
         self.woe_df_ = pd.concat(woe_list, axis=0, ignore_index=True
                                  ).rename(columns={0:'feature',1:'value',2:'woe'})
@@ -254,30 +254,30 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         self.startPoints_ = A - B * self.lr_.intercept_[0]    
         
         # Rule table for Scoracard
-        if self.__start_points__ is True:
+        if self.start_points is True:
             self.woe_df_['score'] = np.around(
                 -B * self.woe_df_['beta'].values * self.woe_df_['woe'].values, 
-                decimals=self.__decimal__)
+                decimals=self.decimal)
             startPoints = pd.DataFrame({'feature': ['StartPoints'],
                 'value': [np.nan],
                 'woe': [np.nan],
                 'beta': [np.nan],
-                'score': np.around(self.startPoints_, decimals=self.__decimal__)
+                'score': np.around(self.startPoints_, decimals=self.decimal)
                 })
             #the scorecard
             self.woe_df_ = pd.concat([startPoints, self.woe_df_],
                                      axis=0,
                                      ignore_index=True)  
-        elif self.__start_points__ is False:  
+        elif self.start_points is False:
             self.woe_df_['score'] = np.around(
                 -B * self.woe_df_['beta'].values * self.woe_df_['woe'].values + self.startPoints_ / self.num_of_x_, 
-                decimals=self.__decimal__)
+                decimals=self.decimal)
 
         # Output the scorecard
-        if self.__output_option__ == 'excel' and self.__output_path__ is None:
+        if self.output_option == 'excel' and self.output_path is None:
             self.woe_df_.to_excel('scorecards.xlsx', index=False)
-        elif self.__output_option__ == 'excel' and self.__output_path__ is not None:
-            self.woe_df_.to_excel(self.__output_path__+'scorecards.xlsx', index=False)
+        elif self.output_option == 'excel' and self.output_path is not None:
+            self.woe_df_.to_excel(self.output_path+'scorecards.xlsx', index=False)
 
     def predict(self, X_beforeWOE, load_scorecard=None):
         """Apply the scorecard.
@@ -330,13 +330,13 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
             [pd.Series(_applyScoreCard(scorecard, 
                                        name,
                                        x, 
-                                       delimiter=self.__delimiter__
+                                       delimiter=self.delimiter
                                         ), 
                         name=name
                         ) for name,x in zip(self.columns_, features)], 
             axis=1)
         scored_result['TotalScore'] = scored_result.sum(axis=1)
-        if self.__verbose__:
+        if self.verbose:
             return scored_result
         else:
             return scored_result['TotalScore'].values

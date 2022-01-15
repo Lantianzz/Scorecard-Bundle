@@ -123,7 +123,7 @@ def plot_ks(y_true, y_pred_proba, output_path=None):
     plt.plot(diff, label='K-S curve')
     ks = round(diff.abs().max(),3)
     print('KS = '+str(ks))
-    plt.annotate(s='KS = '+str(ks) ,xy=(diff.abs().idxmax(),diff.abs().max()))
+    plt.annotate(text='KS = '+str(ks), xy=(diff.abs().idxmax(), diff.abs().max()))
     plt.xlim((0,10))
     plt.ylim((0,1))
     plt.title('K-S Curve', fontdict=font_title)   
@@ -188,7 +188,7 @@ def plot_roc(y_true, y_pred_proba, output_path=None):
     plt.axis([0, 1, 0, 1])
     plt.xlabel('False Positive Rate',fontdict=font_text)
     plt.ylabel('True Positive Rate',fontdict=font_text)
-    plt.annotate(s='AUC = '+str(round(roc_auc_score(target, scores),3)), 
+    plt.annotate(text='AUC = '+str(round(roc_auc_score(target, scores),3)),
                  xy = (0.03, 0.95))
     plt.title('ROC Curve', fontdict=font_title)
 

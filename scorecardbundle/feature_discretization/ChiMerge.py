@@ -56,7 +56,7 @@ def chi2_test(A):
 
 
 def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None, 
-                     min_intervals=1, initial_intervals=100, 
+                     min_intervals=2, initial_intervals=100,
                      delimiter='~', decimal=None,
                      output_boundary=False):
     """Merge similar adjacent m intervals until all adjacent
@@ -83,9 +83,9 @@ def chi_merge_vector(x, y, m=2, confidence_level=0.9, max_intervals=None,
         Sometimes (like when training a scorecard model) fewer intervals are
         prefered. If do not need this option just set it to None.
 
-    min_intervals: int, optional(default=1)
+    min_intervals: int, optional(default=2)
         Specify the mininum number of intervals the discretized array will have.
-        If do not need this option just set it to 1.
+        If do not need this option just set it to 2.
 
     initial_intervals: int, optional(default=100)
         The original Chimerge algorithm starts by putting each unique value
@@ -243,9 +243,9 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         Sometimes (like when training a scorecard model) fewer intervals are
         prefered. If do not need this option just set it to None.
 
-    min_intervals: int, optional(default=1)
+    min_intervals: int, optional(default=2)
         Specify the mininum number of intervals the discretized array will have.
-        If do not need this option just set it to 1.
+        If do not need this option just set it to 2.
 
     initial_intervals: int, optional(default=100)
         The original Chimerge algorithm starts by putting each unique value
@@ -294,18 +294,18 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         fit the ChiMerge algorithm to the feature and transform it.    
     """
    
-    def __init__(self, m=2, confidence_level=0.9, max_intervals=None, 
-                    min_intervals=1, initial_intervals=100, 
-                    delimiter='~', decimal=None,
-                    output_dataframe=False):
-        self.__m__ = m
-        self.__confidence_level__ = confidence_level
-        self.__max_intervals__ = max_intervals
-        self.__min_intervals__ = min_intervals
-        self.__initial_intervals__ = initial_intervals
-        self.__delimiter__ = delimiter
-        self.__decimal__ = decimal
-        self.__output_dataframe__ = output_dataframe
+    def __init__(self, m=2, confidence_level=0.9, max_intervals=None
+                 , min_intervals=2, initial_intervals=100
+                 , delimiter='~', decimal=None
+                 , output_dataframe=False):
+        self.m = m
+        self.confidence_level = confidence_level
+        self.max_intervals = max_intervals
+        self.min_intervals = min_intervals
+        self.initial_intervals = initial_intervals
+        self.delimiter = delimiter
+        self.decimal = decimal
+        self.output_dataframe = output_dataframe
         self.fit_sample_size_ = None
         self.num_of_x_ = None
         self.columns_ = None
@@ -348,13 +348,13 @@ class ChiMerge(BaseEstimator, TransformerMixin):
 
         boundary_list = [chi_merge_vector(
                             features[:, i], target
-                            , m=self.__m__
-                            , confidence_level=self.__confidence_level__
-                            , max_intervals=self.__max_intervals__
-                            , min_intervals=self.__min_intervals__
-                            , initial_intervals=self.__initial_intervals__
-                            , delimiter=self.__delimiter__
-                            , decimal=self.__decimal__
+                            , m=self.m
+                            , confidence_level=self.confidence_level
+                            , max_intervals=self.max_intervals
+                            , min_intervals=self.min_intervals
+                            , initial_intervals=self.initial_intervals
+                            , delimiter=self.delimiter
+                            , decimal=self.decimal
                             , output_boundary=True
                             ) for i in range(self.num_of_x_)]
         self.boundaries_ = dict(zip(self.columns_, boundary_list))
@@ -383,11 +383,11 @@ class ChiMerge(BaseEstimator, TransformerMixin):
         result = np.array([assign_interval_str(
                                 features[:,i],
                                 self.boundaries_[col],
-                                delimiter=self.__delimiter__,
+                                delimiter=self.delimiter,
                                 force_inf=False
                                 ) for i,col in enumerate(self.columns_)])
 
-        if self.__output_dataframe__:
+        if self.output_dataframe:
             return pd.DataFrame(result, index=self.columns_).T
         else:
             return result.T
