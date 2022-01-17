@@ -19,7 +19,7 @@ from scorecardbundle.utils.func_numpy import map_np
 # Basic Functions
 # ============================================================
 
-def _applyScoreCard(scorecard, feature_name, feature_array, delimiter='~'):
+def _apply_scorecard(scorecard, feature_name, feature_array, delimiter='~'):
     """Apply the scorecard to a column. Return the score for each value.
     
     Parameters
@@ -156,55 +156,88 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
     
     """     
     
-    def __init__(self, woe_transformer, C=1, class_weight=None, 
-                 PDO=-20, basePoints = 100, baseOdds=None,
+    def __init__(self, woe_transformer, C=1.0, class_weight=None,
+                 PDO=-20, basePoints=100, baseOdds=None,
                  decimal=0, start_points = False,
-                 output_option='excel', output_path=None, verbose=False, 
+                 output_option='excel', output_path=None, verbose=False,
                  delimiter='~', random_state=None, **kargs):
         
-        self.__woe_transformer__ = woe_transformer
-        self.__C__ = C
-        self.__class_weight__ = class_weight
-        self.__random_state__ = random_state
-        self.__PDO__ = PDO
-        self.__basePoints__ = basePoints
-        self.__output_option__ = output_option
-        self.__decimal__ = decimal
-        self.__output_path__ = output_path
-        self.__start_points__ = start_points
-        self.__verbose__ = verbose
-        self.__delimiter__ = delimiter
-        self.__baseOdds__ = baseOdds
+        self.woe_transformer = woe_transformer
+        self.C = C
+        self.class_weight = class_weight
+        self.random_state = random_state
+        self.PDO = PDO
+        self.basePoints = basePoints
+        self.output_option = output_option
+        self.decimal = decimal
+        self.output_path = output_path
+        self.start_points = start_points
+        self.verbose = verbose
+        self.delimiter = delimiter
+        self.baseOdds = baseOdds
+        self.base_model_kargs = kargs
         self.fit_sample_size_ = None
         self.num_of_x_ = None
         self.columns_ = None
-        self.__p__ = None
+        self.p_ = None
         self.AB_ = None
         self.woe_df_ = None
+        self.beta_map_ = None
         self.startPoints_ = None
         self.transform_sample_size_ = None
-        self.lr_ = LogisticRegression(C=C
-                                ,class_weight=class_weight
-                                ,random_state=random_state
-                                , **kargs
-                                )
+
+    def _init_fit(self, y):
+        """Initialize the fitting of scorecard
+        """
+        # Basic settings of Scorecard
+        positive, total = y.sum(), y.shape[0]
+        if self.baseOdds is None:
+            self.baseOdds = positive / (total - positive)
+        self.p_ = self.baseOdds / (1 + self.baseOdds)
+        B = self.PDO/np.log(2)
+        A = self.basePoints + B * np.log(self.baseOdds)
+        self.AB_ = (A, B)
+
+        # Concat vertically all woe values
+        # later this will become the scorecard rules table
+        woe_list = [pd.concat([
+           pd.Series([col]*len(self.woe_transformer.result_dict_[col][0])), # Name of x
+           pd.Series(list(self.woe_transformer.result_dict_[col][0].keys())), # interval strings of x
+           pd.Series(list(self.woe_transformer.result_dict_[col][0].values())) # woe values of x
+           ],axis=1) for col in self.columns_]
+        self.woe_df_ = pd.concat(woe_list, axis=0, ignore_index=True
+                                 ).rename(columns={0: 'feature', 1: 'value', 2: 'woe'})
+
+    def _get_w_b(self, features, y, **kargs):
+        """Get the betas(W) and intercepts(b)"""
+        # Initialize regression
+        lr = LogisticRegression(C=self.C
+                                , class_weight=self.class_weight
+                                , random_state=self.random_state
+                                , **self.base_model_kargs)
+
+        # Fit a logistic regression
+        lr.fit(features, y, **kargs)
+
+        # Calculate scores for each value in each feature, and the start scores
+        self.beta_map_ = dict(zip(list(self.columns_), lr.coef_[0, :]))
+        self.intercept_ = lr.intercept_[0]
 
     def fit(self, woed_X, y, **kargs):
         """
         Parameters
         ----------
-        woed_X: numpy.ndarray or pandas.DataFrame, shape (number of examples, 
+        woed_X: numpy.ndarray or pandas.DataFrame, shape (number of examples,
                                                      number of features)
             The woe encoded X.
-        
+
         y: numpy.array or pandas.Series, shape (number of examples,)
             The target array (or dependent variable).
 
         **kargs: other keyword arguments in the fit()
             of sklearn.linear_model.LogisticRegression
-        """ 
-
-        # if X is pandas.DataFrame, turn it into numpy.ndarray and 
+        """
+        # if X is pandas.DataFrame, turn it into numpy.ndarray and
         # associate each column array with column names.
         # if X is numpy.ndarray, generate column names for it (x1, x2,...)
         self.fit_sample_size_, self.num_of_x_ = woed_X.shape
@@ -213,8 +246,8 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
             features = woed_X.values
         elif isinstance(woed_X, np.ndarray):
             self.columns_ = np.array(
-                [''.join(('x',str(a))) for a in range(self.num_of_x_)]
-                ) #  # column names (i.e. x0, x1, ...)
+                [''.join(('x', str(a))) for a in range(self.num_of_x_)]
+                )  # column names (i.e. x0, x1, ...)
             features = woed_X
         else:
             raise TypeError('woed_X should be either numpy.ndarray or pandas.DataFrame')
@@ -226,58 +259,39 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
         else:
             raise TypeError('y should be either numpy.array or pandas.Series')
 
-        # Basic settings of Scorecard
-        positive, total = y.sum(), y.shape[0]   
-        if self.__baseOdds__ is None:
-            self.__baseOdds__ = positive / (total - positive) 
-        self.__p__ = self.__baseOdds__  / (1 + self.__baseOdds__)
-        B = self.__PDO__/np.log(2)
-        A = self.__basePoints__ + B * np.log(self.__baseOdds__)
-        self.AB_ = (A, B)
-        
-        # Concat vertically all woe values (scorecard rules table)
-        woe_list = [pd.concat([
-           pd.Series([col]*len(self.__woe_transformer__.result_dict_[col][0])), # Name of x
-           pd.Series(list(self.__woe_transformer__.result_dict_[col][0].keys())), # interval strings of x 
-           pd.Series(list(self.__woe_transformer__.result_dict_[col][0].values())) # woe values of x
-           ],axis=1) for col in self.columns_]
-        self.woe_df_ = pd.concat(woe_list, axis=0, ignore_index=True
-                                 ).rename(columns={0:'feature',1:'value',2:'woe'})
+        # Initialize Scorecard fitting
+        self._init_fit(y)
 
-        # Fit a logistic regression
-        self.lr_.fit(features, y,**kargs)
-        
-        # Calculate scores for each value in each feature, and the start scores
-        beta_map = dict(zip(list(self.columns_), 
-                            self.lr_.coef_[0,:]))
-        self.woe_df_['beta'] = map_np(self.woe_df_.feature, beta_map)
-        self.startPoints_ = A - B * self.lr_.intercept_[0]    
-        
+        # Get the betas(W) and intercepts(b)
+        self._get_w_b(features, y, **kargs)
+
         # Rule table for Scoracard
-        if self.__start_points__ is True:
+        self.startPoints_ = self.AB_[0] - self.AB_[1] * self.intercept_
+        self.woe_df_['beta'] = map_np(self.woe_df_.feature, self.beta_map_)
+        if self.start_points is True:
             self.woe_df_['score'] = np.around(
-                -B * self.woe_df_['beta'].values * self.woe_df_['woe'].values, 
-                decimals=self.__decimal__)
+                -self.AB_[1] * self.woe_df_['beta'].values * self.woe_df_['woe'].values,
+                decimals=self.decimal)
             startPoints = pd.DataFrame({'feature': ['StartPoints'],
                 'value': [np.nan],
                 'woe': [np.nan],
                 'beta': [np.nan],
-                'score': np.around(self.startPoints_, decimals=self.__decimal__)
+                'score': np.around(self.startPoints_, decimals=self.decimal)
                 })
-            #the scorecard
+            # Rule table
             self.woe_df_ = pd.concat([startPoints, self.woe_df_],
                                      axis=0,
                                      ignore_index=True)  
-        elif self.__start_points__ is False:  
+        elif self.start_points is False:
             self.woe_df_['score'] = np.around(
-                -B * self.woe_df_['beta'].values * self.woe_df_['woe'].values + self.startPoints_ / self.num_of_x_, 
-                decimals=self.__decimal__)
+                -self.AB_[1] * self.woe_df_['beta'].values * self.woe_df_['woe'].values + self.startPoints_ / self.num_of_x_,
+                decimals=self.decimal)
 
         # Output the scorecard
-        if self.__output_option__ == 'excel' and self.__output_path__ is None:
+        if self.output_option == 'excel' and self.output_path is None:
             self.woe_df_.to_excel('scorecards.xlsx', index=False)
-        elif self.__output_option__ == 'excel' and self.__output_path__ is not None:
-            self.woe_df_.to_excel(self.__output_path__+'scorecards.xlsx', index=False)
+        elif self.output_option == 'excel' and self.output_path is not None:
+            self.woe_df_.to_excel(self.output_path+'scorecards.xlsx', index=False)
 
     def predict(self, X_beforeWOE, load_scorecard=None):
         """Apply the scorecard.
@@ -305,7 +319,7 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
             features = X_beforeWOE.T
             self.columns_ = np.array(
                 [''.join(('x',str(a))) for a in range(X_beforeWOE.shape[1])]
-                ) #  # column names (i.e. x0, x1, ...)
+                )  # column names (i.e. x0, x1, ...)
         else:
             raise TypeError('X_beforeWOE should be either numpy.ndarray or pandas.DataFrame')
 
@@ -327,16 +341,16 @@ class LogisticRegressionScoreCard(BaseEstimator, TransformerMixin):
 
         # Apply the Scorecard rules
         scored_result = pd.concat(
-            [pd.Series(_applyScoreCard(scorecard, 
-                                       name,
-                                       x, 
-                                       delimiter=self.__delimiter__
-                                        ), 
-                        name=name
-                        ) for name,x in zip(self.columns_, features)], 
+            [pd.Series(_apply_scorecard(scorecard,
+                                        name,
+                                        x,
+                                        delimiter=self.delimiter
+                                        ),
+                       name=name
+                       ) for name, x in zip(self.columns_, features)],
             axis=1)
         scored_result['TotalScore'] = scored_result.sum(axis=1)
-        if self.__verbose__:
+        if self.verbose:
             return scored_result
         else:
             return scored_result['TotalScore'].values

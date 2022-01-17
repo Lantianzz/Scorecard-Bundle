@@ -93,8 +93,8 @@ class WOE_Encoder(BaseEstimator, TransformerMixin):
             fit the WOE transformation to the feature and transform it.         
     """
     def __init__(self, epslon=1e-10, output_dataframe=False):
-        self.__epslon__ = epslon
-        self.__output_dataframe__ = output_dataframe
+        self.epslon = epslon
+        self.output_dataframe = output_dataframe
         self.fit_sample_size_ = None
         self.num_of_x_ = None
         self.columns_ = None
@@ -138,7 +138,7 @@ class WOE_Encoder(BaseEstimator, TransformerMixin):
 
         # Perform woe transformation to each feature
         self.result_dict_ = dict(zip(self.columns_, 
-                                    (woe_vector(x,y) for x in features)))
+                                    (woe_vector(x, y, self.epslon) for x in features)))
         # Extract iv from result
         self.iv_ = dict(zip(self.columns_, 
                             (self.result_dict_[x][1] for x in self.columns_)))
@@ -172,7 +172,7 @@ class WOE_Encoder(BaseEstimator, TransformerMixin):
             [map_np(d, self.result_dict_[col][0]) for d,col in zip(features,
                                                                   self.columns_)])
         # Output
-        if self.__output_dataframe__:
+        if self.output_dataframe:
             return pd.DataFrame(result, index=self.columns_).T
         else:
             return result.T

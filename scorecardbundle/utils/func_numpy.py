@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Numpy based functions shared among classes
+
+@author: Lantian ZHANG
+"""
+
 import numpy as np
 
 # ============================================================
