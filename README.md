@@ -73,6 +73,20 @@ Note that Scorecard-Bundle depends on NumPy, Pandas, matplotlib, Scikit-Learn, a
 
 ### Updates Log
 
+#### V1.2.2
+
+V1.2.2 fixed some non-critical bugs in previous versions.
+
+- Corrected the use of deprecated parameters
+  - When using `plt.annotate()` in previous versions, parameter `s` is used to pass in the text. However, this parameter has been renamed as `text`  and from Python3.9 continuing using `s` may cause in TypeError `annotate() missing 1 required positional argument: 'text'`. In V1.2.2 parameter `text` is used when using `plt.annotate()`
+- Change default parameter values: Change the default value of parameter `min_intervals` in ChiMerge from 1 to 2. 
+
+- Adjust the naming of private variables in classes: 
+  - Several classes in ScorecardBundle are inherited from the `BaseEstimator` and `TransformerMixin` classess in Scikit-learn, and for each class parameter Scikit-learn checks whether it is existed inside the class as an property with the exact same name.  The previous codes set such parameters as private variables with two underscores as prefix. This resulted in errors like `cannot found __xx in class xxxx` when users try to print the instance or access these private variables.  Note that this problem won't stop you from getting the correct results. 
+  - V1.2.2 adjusted the use of OOP in `ChiMerge`, `WOE` and`LogisticRegressionScoreCard`to avoid such problem. 
+
+
+
 #### V1.2.1
 
 This is an emergency update to fix 2 related bugs that may be triggered in rare cases but are hard to debug for someone who is not familiar with the codes. Thanks to @ zeyunH for bring one of the bugs to me.
@@ -176,6 +190,19 @@ Scorecard-Bundle中WOE和IV的计算、评分卡转化等的核心计算逻辑�
 - [Fix] 在使用V1.0.2版本时，songshijun007 在issue中提到当测试集存在比训练集更大的特征值时会造成KeyError。这处bug已被解决，自V1.1.0版本起已修复（issue链接https://github.com/Lantianzz/Scorecard-Bundle/issues/1#issue-565173725).
 
 ### 更新日志
+
+#### V1.2.2
+
+V1.2.2修复了几处非重要的bug
+
+- 修正了失效参数的使用
+  - 旧版代码在使用`plt.annotate()`时使用参数`s`传入文本，但此参数已经被更名为`text`, 在Python3.9中继续使用原参数可能导致TypeError `annotate() missing 1 required positional argument: 'text'`。新版代码改为使用`text`参数
+- 修改默认参数值：将ChiMerge的`min_intervals`参数的默认值由1改为2
+- 调整类的private variable的名称
+  - Scorecardbundle中的几个类均继承自 Scikit-learn的`BaseEstimator` 和`TransformerMixin` ， Scikit-learn会检查每个参数是否以同样的名称存在于类的实例的属性中，旧代码将参数均设为了由两个断线`__`作为前缀的私有变量，导致当用户试图打印实例、或者获取私有变量的时候出现`cannot found __xx in class xxxx`这类错误，此错误不会影响代码的正常使用
+  - 新代码调整了`ChiMerge`, `WOE` 和`LogisticRegressionScoreCard`三个类，类的参数均已同名的属性的形式存在于类的实例中
+
+
 
 #### V1.2.1
 
