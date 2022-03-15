@@ -11,7 +11,7 @@ See the source codes of this project in https://github.com/Lantianzz/Scorecard-B
 '''
 setuptools.setup(
 	name="scorecardbundle",
-	version="1.2.1",
+	version="1.2.2",
 	author="Lantian ZHANG",
 	author_email="blue.zhanglt@outlook.com",
 	description="The python scorecard modeling library",
@@ -26,6 +26,6 @@ setuptools.setup(
 	keywords='Python Scorecard Modeling',
 	packages=setuptools.find_packages(exclude=['TEMP','examples']),
 	python_requires='>=3.7',
-	install_requires=['numpy','scipy','pandas','matplotlib','sklearn'],
+	install_requires=['numpy','scipy','pandas','matplotlib','scikit-learn'],
 )
 
